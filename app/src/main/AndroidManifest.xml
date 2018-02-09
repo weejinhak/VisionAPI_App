@@ -15,7 +15,7 @@
         android:theme="@style/AppTheme.NoActionBar">
         <activity
             android:screenOrientation="portrait"
-            android:name=".MainActivity"
+            android:name=".LoginActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -37,7 +37,10 @@
         <activity
             android:name=".UserInfoActivity"
             android:theme="@style/AppTheme.NoActionBar"/>
-        
+        <activity
+            android:name=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
+
     </application>
 
 </manifest>
