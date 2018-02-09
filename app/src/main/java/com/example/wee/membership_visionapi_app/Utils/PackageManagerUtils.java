@@ -1,4 +1,4 @@
-package com.example.wee.membership_visionapi_app;
+package com.example.wee.membership_visionapi_app.Utils;
 
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.wee.membership_visionapi_app;
+package com.example.wee.membership_visionapi_app.Utils;
 
 import android.app.Activity;
 import android.content.pm.PackageManager;

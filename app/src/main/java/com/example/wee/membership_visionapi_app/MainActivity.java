@@ -37,6 +37,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.wee.membership_visionapi_app.Utils.PackageManagerUtils;
+import com.example.wee.membership_visionapi_app.Utils.PermissionUtils;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.HttpTransport;
