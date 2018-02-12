@@ -58,11 +58,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        mBtnSignIn = (Button) findViewById(R.id.btn_signIn);
-        mBtnSignIn.setOnClickListener(this);
-        mEmailField = (EditText) findViewById(R.id.input_id);
-        mPasswordField = (EditText) findViewById(R.id.input_pw);
-
         initViews();
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         initFirebaseAuth();
@@ -250,17 +245,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 startActivity(intent);
                 break;
 
-
-//            case R.id.btn_signUp:
-//                Intent intent = new Intent(getApplicationContext(), SignupActivity.class);
-//                startActivity(intent);
-//                break;
-
-            case R.id.btn_signIn:
-                Toast.makeText(LoginActivity.this, "SignIn Clicked",
-                        Toast.LENGTH_SHORT).show();
-                signIn(mEmailField.getText().toString(), mPasswordField.getText().toString());
-                break;
         }
     }
 
