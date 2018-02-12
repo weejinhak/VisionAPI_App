@@ -126,7 +126,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 });
     }
 
-
     private void initViews() {
         mBtnGoogleSignIn = (SignInButton) findViewById(R.id.btn_google_signin);
         mBtnGoogleSignIn.setOnClickListener(this);
@@ -186,17 +185,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     }
 
-    private void signOut() {
-        mAuth.signOut();
-        Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
-                new ResultCallback<Status>() {
-                    @Override
-                    public void onResult(@NonNull Status status) {
-                        updateProfile();
-                    }
-                });
-    }
-
     @Override
     public void onStart() {
         super.onStart();
@@ -245,58 +233,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         }
         callbackManager.onActivityResult(requestCode, resultCode, data);
     }
-
-    private void signIn(String email, String password) {
-        Log.d(TAG, "signIn:" + email);
-        if (!validateForm()) {
-            return;
-        }
-
-        mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            Log.d(TAG, "signInWithEmail:success");
-                            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                            startActivity(intent);
-                        } else {
-                            Log.w(TAG, "signInWithEmail:failure", task.getException());
-                            Toast.makeText(LoginActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
-                        }
-
-                        if (!task.isSuccessful()) {
-                            Log.w(TAG, "!task.isSuccesful()", task.getException());
-
-                            Toast.makeText(LoginActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-    }
-
-    private boolean validateForm() {
-        boolean valid = true;
-
-        String email = mEmailField.getText().toString();
-        if (TextUtils.isEmpty(email)) {
-            mEmailField.setError("Required.");
-            valid = false;
-        } else {
-            mEmailField.setError(null);
-        }
-
-        String password = mPasswordField.getText().toString();
-        if (TextUtils.isEmpty(password)) {
-            mPasswordField.setError("Required.");
-            valid = false;
-        } else {
-            mPasswordField.setError(null);
-        }
-        return valid;
-    }
-
 
     @Override
     public void onClick(View v) {
