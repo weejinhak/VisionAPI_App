@@ -16,5 +16,10 @@
     <string name="allergy_listBox_title_text">알레르기 성분</string>
     <string name="allergy_searchButton_text">제품 성분 조회하기</string>
 
+    <!--Facebook-->
+    <string name="facebook_app_id">2043198459302948</string>
+    <string name="fb_login_protocol_scheme">fb2043198459302948</string>
+
+
 
 </resources>
