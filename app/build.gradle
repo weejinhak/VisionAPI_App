@@ -9,6 +9,7 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -42,6 +43,12 @@ dependencies {
 
     //faceBook Login
     compile 'com.facebook.android:facebook-login:[4,5)'
+
+    //Circle ImageView
+    compile 'de.hdodenhof:circleimageview:2.1.0'
+
+    //Picasso
+    compile 'com.squareup.picasso:picasso:2.5.2'
 
 }
 
