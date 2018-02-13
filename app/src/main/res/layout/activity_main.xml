@@ -5,7 +5,6 @@
     android:layout_height="match_parent"
     android:theme="@style/AppTheme.NoActionBar">
 
-    <include layout="@layout/content_main" />
 
     <ImageView
         android:id="@+id/userImage"
