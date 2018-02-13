@@ -20,6 +20,8 @@
     <string name="facebook_app_id">2043198459302948</string>
     <string name="fb_login_protocol_scheme">fb2043198459302948</string>
 
+    <string name="component_kr">성분 :</string>
+
 
 
 </resources>

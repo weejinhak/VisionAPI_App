@@ -9,6 +9,7 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -45,6 +46,10 @@ dependencies {
 
     //fonts
     compile 'com.github.katoro:typekit:1.0.1'
+    //Circle ImageView
+    compile 'de.hdodenhof:circleimageview:2.1.0'
+    //Picasso
+    compile 'com.squareup.picasso:picasso:2.5.2'
 
 }
 
