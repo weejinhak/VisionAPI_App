@@ -34,7 +34,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:26.1.0'
     compile 'com.android.support:design:26.1.0'
 
-    compile 'com.google.api-client:google-api-client-android:1.22.0'exclude module: 'httpclient'
+    compile 'com.google.api-client:google-api-client-android:1.22.0' exclude module: 'httpclient'
     compile 'com.google.http-client:google-http-client-gson:1.20.0' exclude module: 'httpclient'
     compile 'com.google.apis:google-api-services-vision:v1-rev357-1.22.0'
     compile 'com.google.code.findbugs:jsr305:2.0.1'
@@ -43,12 +43,15 @@ dependencies {
     //faceBook Login
     compile 'com.facebook.android:facebook-login:[4,5)'
 
+    //fonts
+    compile 'com.github.katoro:typekit:1.0.1'
+
 }
 
 allprojects {
     repositories {
         jcenter()
-        maven { url "https://maven.google.com" }
+        maven { url 'https://jitpack.io' }
     }
 }
 

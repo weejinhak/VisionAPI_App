@@ -1,5 +1,6 @@
 package com.example.wee.membership_visionapi_app;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -18,6 +19,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.tsengvn.typekit.TypekitContextWrapper;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -85,7 +87,7 @@ public class ResultActivity extends AppCompatActivity implements ValueEventListe
                 }
             }
         }
-
+        //새로운 방안 키값을 일일이 집어넣음
         for (DataSnapshot fileSnapshot : dataSnapshot.child("SNACK").child(keyString).getChildren()) {
             componentList.add((String) fileSnapshot.getValue());
         }
@@ -151,5 +153,10 @@ public class ResultActivity extends AppCompatActivity implements ValueEventListe
             resizedWidth = maxDimension;
         }
         return Bitmap.createScaledBitmap(bitmap, resizedWidth, resizedHeight, false);
+    }
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(TypekitContextWrapper.wrap(newBase));
     }
 }

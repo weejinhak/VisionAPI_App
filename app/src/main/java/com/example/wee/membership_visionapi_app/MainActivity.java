@@ -18,6 +18,7 @@ package com.example.wee.membership_visionapi_app;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -53,6 +54,7 @@ import com.google.api.services.vision.v1.model.EntityAnnotation;
 import com.google.api.services.vision.v1.model.Feature;
 import com.google.api.services.vision.v1.model.Image;
 import com.google.api.services.vision.v1.model.TextAnnotation;
+import com.tsengvn.typekit.TypekitContextWrapper;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -300,5 +302,10 @@ public class MainActivity extends AppCompatActivity {
         TextAnnotation texts = response.getResponses().get(0).getFullTextAnnotation();
 
         return texts.getText();
+    }
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(TypekitContextWrapper.wrap(newBase));
     }
 }
