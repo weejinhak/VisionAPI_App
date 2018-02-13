@@ -41,24 +41,19 @@ import java.util.Random;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
     private static final int RC_SIGN_IN = 1001;
-    private static final String TAG = "LoginActivity";
+    private static final String TAG = LoginActivity.class.getSimpleName();
     private static final String EMAIL = "email";
 
-
-    private FirebaseDatabase mFirebaseDatabase;
-
+    // Google
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private GoogleApiClient mGoogleApiClient;
+
+    // Facebook
     private CallbackManager callbackManager;
 
+    // View
     private SignInButton mBtnGoogleSignIn;
-
-    private Button mBtnSignIn;
-    private Button loginButton;
-    private EditText mEmailField;
-    private EditText mPasswordField;
-
     private String userName;
 
     @Override
@@ -67,7 +62,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         setContentView(R.layout.activity_login);
 
         initViews();
-        mFirebaseDatabase = FirebaseDatabase.getInstance();
         initFirebaseAuth();
         initValues();
 
@@ -97,8 +91,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 // App code
             }
         });
-
-
     }
 
     private void handleFacebookAccessToken(AccessToken token) {
@@ -115,14 +107,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                         } else {
                             // If sign in fails, display a message to the user.
                         }
-
                         // ...
                     }
                 });
     }
 
     private void initViews() {
-        mBtnGoogleSignIn = (SignInButton) findViewById(R.id.btn_google_signin);
+        mBtnGoogleSignIn = findViewById(R.id.btn_google_signin);
         mBtnGoogleSignIn.setOnClickListener(this);
     }
 
@@ -236,8 +227,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 googleSignIn();
                 Toast.makeText(LoginActivity.this, "Sign In.",
                         Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                startActivity(intent);
                 break;
 
         }

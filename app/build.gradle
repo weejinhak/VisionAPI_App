@@ -51,6 +51,7 @@ dependencies {
     //Picasso
     compile 'com.squareup.picasso:picasso:2.5.2'
 
+    compile 'org.jetbrains:annotations-java5:15.0'
 }
 
 allprojects {

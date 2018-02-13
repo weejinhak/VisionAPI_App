@@ -35,6 +35,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.wee.membership_visionapi_app.Adapter.AllergyListAdapter;
+import com.example.wee.membership_visionapi_app.Models.Allergy;
 import com.example.wee.membership_visionapi_app.Utils.PackageManagerUtils;
 import com.example.wee.membership_visionapi_app.Utils.PermissionUtils;
 import com.google.api.client.extensions.android.http.AndroidHttp;
@@ -52,13 +53,13 @@ import com.google.api.services.vision.v1.model.Feature;
 import com.google.api.services.vision.v1.model.Image;
 import com.google.api.services.vision.v1.model.TextAnnotation;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.squareup.picasso.Picasso;
-import com.tsengvn.typekit.TypekitContextWrapper;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -68,42 +69,43 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
 
+    // Vision
     private static final String CLOUD_VISION_API_KEY = "AIzaSyB_CfmE3ikd0HVnxyJQcY2Hb4l0hXkSt7w";
     public static final String FILE_NAME = "temp.jpg";
     private static final String ANDROID_CERT_HEADER = "X-Android-Cert";
     private static final String ANDROID_PACKAGE_HEADER = "X-Android-Package";
 
-
+    // Permissions
     private static final int GALLERY_PERMISSIONS_REQUEST = 0;
     private static final int GALLERY_IMAGE_REQUEST = 1;
     public static final int CAMERA_PERMISSIONS_REQUEST = 2;
     public static final int CAMERA_IMAGE_REQUEST = 3;
 
-    private Uri intentPhotoUri;
-
-    private AllergyListAdapter mAdapter;
-
-    //firebase
+    // Firebase
     private FirebaseAuth mAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mReference;
+    private DatabaseReference mUserReference;
+    private FirebaseUser currentUser;
 
-
+    // View
+    private Uri intentPhotoUri;
+    private AllergyListAdapter mAdapter;
     private ImageButton add_btn;
     private ImageView profilePhoto;
     private ListView mListView;
-    private TextView selected_item_textview;
-
     private Context mContext = MainActivity.this;
-    private DatabaseReference mDatabaseReference;
     private ChildEventListener mChildEventListener;
+    private TextView userName;
+
+    private ArrayList<String> allergies = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mAuth = FirebaseAuth.getInstance();
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         mReference = mFirebaseDatabase.getReference();
         mAdapter = new AllergyListAdapter(this, 0);
@@ -111,95 +113,107 @@ public class MainActivity extends AppCompatActivity {
         profilePhoto = findViewById(R.id.profile_photo);
         add_btn = findViewById(R.id.allergy_add_button);
         mListView = findViewById(R.id.my_allergy_listView);
-        selected_item_textview = (TextView) findViewById(R.id.component_name_textview);
         Button allergy_searchButton = findViewById(R.id.allergy_search_button);
+        userName = findViewById(R.id.userName);
 
         mListView.setAdapter(mAdapter);
+
+        setupFirebaseAuth();
         initFirebaseDatabase();
-
-        allergy_searchButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setMessage(R.string.dialog_select_prompt)
-                        .setPositiveButton(R.string.dialog_select_gallery, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                startGalleryChooser();
-                            }
-                        })
-                        .setNegativeButton(R.string.dialog_select_camera, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                startCamera();
-                            }
-                        });
-                builder.create().show();
-            }
-        });
-        Picasso.with(mContext).load(mAuth.getCurrentUser().getPhotoUrl().toString()).into(profilePhoto);
-
-        ImageButton.OnClickListener onClickListener = new ImageButton.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                switch (view.getId()) {
-                    case R.id.allergy_add_button:
-                        ConstraintLayout mainLayout = MainActivity.this.findViewById(R.id.layout_main);
-
-                        // inflate the layout of the popup window
-                        LayoutInflater inflater = (LayoutInflater)
-                                MainActivity.this.getSystemService(LAYOUT_INFLATER_SERVICE);
-                        View popupView = inflater.inflate(R.layout.add_popup, null);
-
-                        final EditText componentEditText= popupView.findViewById(R.id.component_edit_text);
-
-//                    Typeface typeface = Typeface.createFromAsset(popupView.getContext().getAssets(), "210 직장인의한마디R.ttf");
-//                    taeyangText.setTypeface(typeface);
-
-                        // create the popup window
-                        int width = LinearLayout.LayoutParams.WRAP_CONTENT;
-                        int height = LinearLayout.LayoutParams.WRAP_CONTENT;
-                        boolean focusable = true; // lets taps outside the popup also dismiss it
-                        final PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
-
-                        // show the popup window
-                        popupWindow.showAtLocation(mainLayout, Gravity.CENTER, 0, 0);
-                        Button add_btn = popupView.findViewById(R.id.add_btn);
-
-                        add_btn.setOnClickListener(new View.OnClickListener(){
-                            @Override
-                            public void onClick(View v) {
-                                Log.d(TAG, "add_btn_Clicked");
-                                String component = componentEditText.getText().toString();
-                                Allergy allergy = new Allergy(component);
-
-                                mReference.child("USERS")
-                                        .child(mAuth.getCurrentUser().getUid().toString())
-                                        .child("components")
-                                        .push().setValue(allergy);
-                            }
-                        });
-
-                        dimBehind(popupWindow);
-                        // dismiss the popup window when touched
-                        popupView.setOnTouchListener(new View.OnTouchListener() {
-                            @Override
-                            public boolean onTouch(View v, MotionEvent event) {
-                                popupWindow.dismiss();
-                                return true;
-                            }
-                        });
-                        break;
-                }
-            }
-        };
-        add_btn.setOnClickListener(onClickListener);
+        initProfile();
+        allergy_searchButton.setOnClickListener(searchBtnOnClickListener);
+        add_btn.setOnClickListener(addBtnOnClickListener);
     }
 
-    public void getComponents() {
-
+    public void initProfile() {
+        if (currentUser.getPhotoUrl() != null) {
+            Picasso.with(mContext).load(currentUser.getPhotoUrl().toString()).into(profilePhoto);
+            userName.setText(mAuth.getCurrentUser().getDisplayName().toString());
+        } else {
+            Log.d(TAG, "User Doesn't have Profile.");
+        }
     }
 
+    public View.OnClickListener deleteBtnOnClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+
+        }
+    };
+
+    public View.OnClickListener searchBtnOnClickListener = new View.OnClickListener(){
+
+        @Override
+        public void onClick(View v) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+            builder.setMessage(R.string.dialog_select_prompt)
+                    .setPositiveButton(R.string.dialog_select_gallery, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            startGalleryChooser();
+                        }
+                    })
+                    .setNegativeButton(R.string.dialog_select_camera, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            startCamera();
+                        }
+                    });
+            builder.create().show();
+        }
+    };
+
+    public ImageButton.OnClickListener addBtnOnClickListener = new ImageButton.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            switch (view.getId()) {
+                case R.id.allergy_add_button:
+                    ConstraintLayout mainLayout = MainActivity.this.findViewById(R.id.layout_main);
+
+                    // inflate the layout of the popup window
+                    LayoutInflater inflater = (LayoutInflater)
+                            MainActivity.this.getSystemService(LAYOUT_INFLATER_SERVICE);
+                    View popupView = inflater.inflate(R.layout.add_popup, null);
+
+                    final EditText componentEditText= popupView.findViewById(R.id.component_edit_text);
+
+                    // create the popup window
+                    int width = LinearLayout.LayoutParams.WRAP_CONTENT;
+                    int height = LinearLayout.LayoutParams.WRAP_CONTENT;
+                    boolean focusable = true; // lets taps outside the popup also dismiss it
+                    final PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
+
+                    // show the popup window
+                    popupWindow.showAtLocation(mainLayout, Gravity.CENTER, 0, 0);
+                    Button add_btn = popupView.findViewById(R.id.add_btn);
+
+                    add_btn.setOnClickListener(new View.OnClickListener(){
+                        @Override
+                        public void onClick(View v) {
+                            Log.d(TAG, "add_btn_Clicked");
+                            String component = componentEditText.getText().toString();
+                            Allergy allergy = new Allergy(component);
+
+                            mReference.child("USERS")
+                                    .child(mAuth.getCurrentUser().getUid().toString())
+                                    .child("components")
+                                    .push().setValue(allergy);
+                        }
+                    });
+
+                    dimBehind(popupWindow);
+                    // dismiss the popup window when touched
+                    popupView.setOnTouchListener(new View.OnTouchListener() {
+                        @Override
+                        public boolean onTouch(View v, MotionEvent event) {
+                            popupWindow.dismiss();
+                            return true;
+                        }
+                    });
+                    break;
+            }
+        }
+    };
 
     public static void dimBehind(PopupWindow popupWindow) {
         View container;
@@ -387,6 +401,7 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(getApplicationContext(), ResultActivity.class);
                 intent.putExtra("result", result);
                 intent.putExtra("PhotoURI", intentPhotoUri);
+                intent.putStringArrayListExtra("allergies", allergies);
                 startActivity(intent);
             }
         }.execute();
@@ -419,24 +434,21 @@ public class MainActivity extends AppCompatActivity {
         return texts.getText();
     }
 
-    @Override
-    protected void attachBaseContext(Context newBase) {
-        super.attachBaseContext(TypekitContextWrapper.wrap(newBase));
-    }
-
     private void initFirebaseDatabase() {
-        mDatabaseReference = mFirebaseDatabase.getReference("USERS")
-                .child(mAuth.getCurrentUser().getUid().toString())
+        mUserReference = mFirebaseDatabase.getReference("USERS")
+                .child(mAuth.getCurrentUser().getUid())
                 .child("components");
         mChildEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                String mText = dataSnapshot.getValue().toString();
                 Log.d(TAG,"datasnapshot" + dataSnapshot.getValue());
                 Allergy allergy = dataSnapshot.getValue(Allergy.class);
 //                Allergy allergy = new Allergy(mText);
-                allergy.firebaseKey = dataSnapshot.getKey();
+                if (allergy != null) {
+                    allergy.setFirebaseKey(dataSnapshot.getKey());
+                }
                 mAdapter.add(allergy);
+                allergies.add(allergy.getName());
                 mListView.smoothScrollToPosition(mAdapter.getCount());
             }
 
@@ -444,13 +456,15 @@ public class MainActivity extends AppCompatActivity {
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
             }
 
+
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
                 String firebaseKey = dataSnapshot.getKey();
                 int count = mAdapter.getCount();
                 for (int i = 0; i < count; i++) {
-                    if (mAdapter.getItem(i).firebaseKey.equals(firebaseKey)) {
+                    if (mAdapter.getItem(i).getFirebaseKey().equals(firebaseKey)) {
                         mAdapter.remove(mAdapter.getItem(i));
+                        allergies.remove(mAdapter.getItem(i).getName());
                         break;
                     }
                 }
@@ -464,6 +478,60 @@ public class MainActivity extends AppCompatActivity {
             public void onCancelled(DatabaseError databaseError) {
             }
         };
-        mDatabaseReference.addChildEventListener(mChildEventListener);
+        mUserReference.addChildEventListener(mChildEventListener);
+    }
+
+    /**
+     * Setup the firebase auth object
+     */
+
+    private void setupFirebaseAuth(){
+        Log.d(TAG, "setupFirebaseAuth: setting up firebase auth.");
+
+        mAuth = FirebaseAuth.getInstance();
+        currentUser = mAuth.getCurrentUser();
+
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+
+                //check if the user is logged in
+                checkCurrentUser(user);
+
+                if (user != null) {
+                    // User is signed in
+                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+                } else {
+                    // User is signed out
+                    Log.d(TAG, "onAuthStateChanged:signed_out");
+                }
+                // ...
+            }
+        };
+    }
+
+    private void checkCurrentUser(FirebaseUser user){
+        Log.d(TAG, "checkCurrentUser: checking if user is logged in.");
+
+        if(user == null){
+            Intent intent = new Intent(mContext, LoginActivity.class);
+            startActivity(intent);
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mAuth.addAuthStateListener(mAuthListener);
+        checkCurrentUser(mAuth.getCurrentUser());
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mAuthListener != null) {
+            mAuth.removeAuthStateListener(mAuthListener);
+        }
     }
 }
