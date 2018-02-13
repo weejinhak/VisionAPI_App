@@ -1,18 +1,3 @@
-/*
- * Copyright 2016 Google Inc. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 
 package com.example.wee.membership_visionapi_app;
 
@@ -24,18 +9,32 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.PopupWindow;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.wee.membership_visionapi_app.Adapter.AllergyListAdapter;
 import com.example.wee.membership_visionapi_app.Utils.PackageManagerUtils;
 import com.example.wee.membership_visionapi_app.Utils.PermissionUtils;
 import com.google.api.client.extensions.android.http.AndroidHttp;
@@ -52,13 +51,19 @@ import com.google.api.services.vision.v1.model.BatchAnnotateImagesResponse;
 import com.google.api.services.vision.v1.model.Feature;
 import com.google.api.services.vision.v1.model.Image;
 import com.google.api.services.vision.v1.model.TextAnnotation;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.squareup.picasso.Picasso;
 import com.tsengvn.typekit.TypekitContextWrapper;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -76,13 +81,42 @@ public class MainActivity extends AppCompatActivity {
 
     private Uri intentPhotoUri;
 
+    private AllergyListAdapter mAdapter;
+
+    //firebase
+    private FirebaseAuth mAuth;
+    private FirebaseDatabase mFirebaseDatabase;
+    private DatabaseReference mReference;
+
+
+    private ImageButton add_btn;
+    private ImageView profilePhoto;
+    private ListView mListView;
+    private TextView selected_item_textview;
+
+    private Context mContext = MainActivity.this;
+    private DatabaseReference mDatabaseReference;
+    private ChildEventListener mChildEventListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mAuth = FirebaseAuth.getInstance();
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        mReference = mFirebaseDatabase.getReference();
+        mAdapter = new AllergyListAdapter(this, 0);
+
+        profilePhoto = findViewById(R.id.profile_photo);
+        add_btn = findViewById(R.id.allergy_add_button);
+        mListView = findViewById(R.id.my_allergy_listView);
+        selected_item_textview = (TextView) findViewById(R.id.component_name_textview);
         Button allergy_searchButton = findViewById(R.id.allergy_search_button);
+
+        mListView.setAdapter(mAdapter);
+        initFirebaseDatabase();
+
         allergy_searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -103,7 +137,91 @@ public class MainActivity extends AppCompatActivity {
                 builder.create().show();
             }
         });
+        Picasso.with(mContext).load(mAuth.getCurrentUser().getPhotoUrl().toString()).into(profilePhoto);
 
+        ImageButton.OnClickListener onClickListener = new ImageButton.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                switch (view.getId()) {
+                    case R.id.allergy_add_button:
+                        ConstraintLayout mainLayout = MainActivity.this.findViewById(R.id.layout_main);
+
+                        // inflate the layout of the popup window
+                        LayoutInflater inflater = (LayoutInflater)
+                                MainActivity.this.getSystemService(LAYOUT_INFLATER_SERVICE);
+                        View popupView = inflater.inflate(R.layout.add_popup, null);
+
+                        final EditText componentEditText= popupView.findViewById(R.id.component_edit_text);
+
+//                    Typeface typeface = Typeface.createFromAsset(popupView.getContext().getAssets(), "210 직장인의한마디R.ttf");
+//                    taeyangText.setTypeface(typeface);
+
+                        // create the popup window
+                        int width = LinearLayout.LayoutParams.WRAP_CONTENT;
+                        int height = LinearLayout.LayoutParams.WRAP_CONTENT;
+                        boolean focusable = true; // lets taps outside the popup also dismiss it
+                        final PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
+
+                        // show the popup window
+                        popupWindow.showAtLocation(mainLayout, Gravity.CENTER, 0, 0);
+                        Button add_btn = popupView.findViewById(R.id.add_btn);
+
+                        add_btn.setOnClickListener(new View.OnClickListener(){
+                            @Override
+                            public void onClick(View v) {
+                                Log.d(TAG, "add_btn_Clicked");
+                                String component = componentEditText.getText().toString();
+                                Allergy allergy = new Allergy(component);
+
+                                mReference.child("USERS")
+                                        .child(mAuth.getCurrentUser().getUid().toString())
+                                        .child("components")
+                                        .push().setValue(allergy);
+                            }
+                        });
+
+                        dimBehind(popupWindow);
+                        // dismiss the popup window when touched
+                        popupView.setOnTouchListener(new View.OnTouchListener() {
+                            @Override
+                            public boolean onTouch(View v, MotionEvent event) {
+                                popupWindow.dismiss();
+                                return true;
+                            }
+                        });
+                        break;
+                }
+            }
+        };
+        add_btn.setOnClickListener(onClickListener);
+    }
+
+    public void getComponents() {
+
+    }
+
+
+    public static void dimBehind(PopupWindow popupWindow) {
+        View container;
+        if (popupWindow.getBackground() == null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                container = (View) popupWindow.getContentView().getParent();
+            } else {
+                container = popupWindow.getContentView();
+            }
+        } else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                container = (View) popupWindow.getContentView().getParent().getParent();
+            } else {
+                container = (View) popupWindow.getContentView().getParent();
+            }
+        }
+        Context context = popupWindow.getContentView().getContext();
+        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        WindowManager.LayoutParams p = (WindowManager.LayoutParams) container.getLayoutParams();
+        p.flags = WindowManager.LayoutParams.FLAG_DIM_BEHIND;
+        p.dimAmount = 0.3f;
+        wm.updateViewLayout(container, p);
     }
 
     public void startGalleryChooser() {
@@ -304,5 +422,48 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(TypekitContextWrapper.wrap(newBase));
+    }
+
+    private void initFirebaseDatabase() {
+        mDatabaseReference = mFirebaseDatabase.getReference("USERS")
+                .child(mAuth.getCurrentUser().getUid().toString())
+                .child("components");
+        mChildEventListener = new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                String mText = dataSnapshot.getValue().toString();
+                Log.d(TAG,"datasnapshot" + dataSnapshot.getValue());
+                Allergy allergy = dataSnapshot.getValue(Allergy.class);
+//                Allergy allergy = new Allergy(mText);
+                allergy.firebaseKey = dataSnapshot.getKey();
+                mAdapter.add(allergy);
+                mListView.smoothScrollToPosition(mAdapter.getCount());
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                String firebaseKey = dataSnapshot.getKey();
+                int count = mAdapter.getCount();
+                for (int i = 0; i < count; i++) {
+                    if (mAdapter.getItem(i).firebaseKey.equals(firebaseKey)) {
+                        mAdapter.remove(mAdapter.getItem(i));
+                        break;
+                    }
+                }
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        };
+        mDatabaseReference.addChildEventListener(mChildEventListener);
     }
 }
