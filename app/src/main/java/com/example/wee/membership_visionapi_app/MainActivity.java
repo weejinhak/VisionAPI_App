@@ -69,12 +69,14 @@ public class MainActivity extends AppCompatActivity {
     private static final String ANDROID_CERT_HEADER = "X-Android-Cert";
     private static final String ANDROID_PACKAGE_HEADER = "X-Android-Package";
 
+
     private static final int GALLERY_PERMISSIONS_REQUEST = 0;
     private static final int GALLERY_IMAGE_REQUEST = 1;
     public static final int CAMERA_PERMISSIONS_REQUEST = 2;
     public static final int CAMERA_IMAGE_REQUEST = 3;
 
-    private TextView mImageDetails;
+    private Uri intentPhotoUri;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,7 +105,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        mImageDetails = findViewById(R.id.image_details);
     }
 
     public void startGalleryChooser() {
@@ -136,9 +137,11 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == GALLERY_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
+            intentPhotoUri=data.getData();
             uploadImage(data.getData());
         } else if (requestCode == CAMERA_IMAGE_REQUEST && resultCode == RESULT_OK) {
             Uri photoUri = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider", getCameraFile());
+            intentPhotoUri=photoUri;
             uploadImage(photoUri);
         }
     }
@@ -264,12 +267,10 @@ public class MainActivity extends AppCompatActivity {
             }
 
             protected void onPostExecute(String result) {
-
-                Log.d("result",result);
-                Intent intent = new Intent(getApplicationContext(),ResultActivity.class);
-                intent.putExtra("result",result);
+                Intent intent = new Intent(getApplicationContext(), ResultActivity.class);
+                intent.putExtra("result", result);
+                intent.putExtra("PhotoURI", intentPhotoUri);
                 startActivity(intent);
-
             }
         }.execute();
     }

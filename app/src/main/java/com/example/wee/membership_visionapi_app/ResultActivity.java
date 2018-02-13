@@ -1,20 +1,25 @@
 package com.example.wee.membership_visionapi_app;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.example.wee.membership_visionapi_app.Handler.BackPressCloseHandler;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -23,16 +28,33 @@ import java.util.Collections;
  */
 
 public class ResultActivity extends AppCompatActivity implements ValueEventListener {
-
+    private static final String TAG = ResultActivity.class.getSimpleName();
     private BackPressCloseHandler backPressCloseHandler;
-    private ArrayList<String> resultList;
-    private ArrayList<String> componentList;
+    private ArrayList<String> resultList = new ArrayList<>();
+    private ArrayList<String> componentList = new ArrayList<>();
+
+    private ImageView photoImage;
+    private TextView componentTextview;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_result);
         backPressCloseHandler = new BackPressCloseHandler(this);
+
+        Intent intent = getIntent();
+        Uri photoUri = intent.getParcelableExtra("PhotoURI");
+        photoImage = findViewById(R.id.main_image);
+        componentTextview = findViewById(R.id.componentList_textView);
+
+        try {
+            Bitmap bitmap = scaleBitmapDown(MediaStore.Images.Media.getBitmap(getContentResolver(), photoUri), 1200);
+            photoImage.setImageBitmap(bitmap);
+
+        } catch (IOException e) {
+            Log.d(TAG, "Image picking failed because " + e.getMessage());
+            Toast.makeText(this, R.string.image_picker_error, Toast.LENGTH_LONG).show();
+        }
 
 
     }
@@ -48,29 +70,34 @@ public class ResultActivity extends AppCompatActivity implements ValueEventListe
 
         resultList = resultParsingString(result);
 
-        for (int i = 0; i < resultList.size(); i++) {
-            System.out.println(resultList.get(i));
-        }
-
         //get Database key and value
-        ArrayList<String> keyList =new ArrayList<>();
+        ArrayList<String> keyList = new ArrayList<>();
         for (DataSnapshot fileSnapshot : dataSnapshot.child("SNACK").getChildren()) {
             keyList.add(fileSnapshot.getKey());
         }
 
-        String keyString="";
-        for(int i=0; i< keyList.size();i++){
-            for(int j=0; j<resultList.size();j++){
-                if(keyList.get(i).equals(resultList.get(j))){
-                    keyString=keyList.get(i);
+        String keyString = "";
+        for (int i = 0; i < keyList.size(); i++) {
+            for (int j = 0; j < resultList.size(); j++) {
+                if (keyList.get(i).equals(resultList.get(j))) {
+                    keyString = keyList.get(i);
                     break;
                 }
             }
         }
 
-        for(DataSnapshot fileSnapshot : dataSnapshot.child("SNACK").child(keyString).getChildren()){
+        for (DataSnapshot fileSnapshot : dataSnapshot.child("SNACK").child(keyString).getChildren()) {
             componentList.add((String) fileSnapshot.getValue());
         }
+
+
+        String strComponents = "구성성분: \n\n";
+        for (int i = 0; i < componentList.size(); i++) {
+            strComponents += componentList.get(i);
+            strComponents += "\n";
+        }
+        componentTextview.setText(strComponents);
+
 
     }
 
@@ -90,7 +117,8 @@ public class ResultActivity extends AppCompatActivity implements ValueEventListe
         super.onStop();
         FirebaseDatabase.getInstance().getReference().removeEventListener(this);
     }
-    
+
+
     @Override
     public void onBackPressed() {
         backPressCloseHandler.onBackPressed();
@@ -103,5 +131,25 @@ public class ResultActivity extends AppCompatActivity implements ValueEventListe
         Collections.addAll(resultList, result);
 
         return resultList;
+    }
+
+    public Bitmap scaleBitmapDown(Bitmap bitmap, int maxDimension) {
+
+        int originalWidth = bitmap.getWidth();
+        int originalHeight = bitmap.getHeight();
+        int resizedWidth = maxDimension;
+        int resizedHeight = maxDimension;
+
+        if (originalHeight > originalWidth) {
+            resizedHeight = maxDimension;
+            resizedWidth = (int) (resizedHeight * (float) originalWidth / (float) originalHeight);
+        } else if (originalWidth > originalHeight) {
+            resizedWidth = maxDimension;
+            resizedHeight = (int) (resizedWidth * (float) originalHeight / (float) originalWidth);
+        } else if (originalHeight == originalWidth) {
+            resizedHeight = maxDimension;
+            resizedWidth = maxDimension;
+        }
+        return Bitmap.createScaledBitmap(bitmap, resizedWidth, resizedHeight, false);
     }
 }
