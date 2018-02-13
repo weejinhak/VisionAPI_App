@@ -52,6 +52,7 @@ import com.google.api.services.vision.v1.model.BatchAnnotateImagesResponse;
 import com.google.api.services.vision.v1.model.EntityAnnotation;
 import com.google.api.services.vision.v1.model.Feature;
 import com.google.api.services.vision.v1.model.Image;
+import com.google.api.services.vision.v1.model.TextAnnotation;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -180,7 +181,7 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("StaticFieldLeak")
     private void callCloudVision(final Bitmap bitmap) throws IOException {
         // Switch text to loading
-        mImageDetails.setText(R.string.loading_message);
+        //mImageDetails.setText(R.string.loading_message);
 
         // Do the real work in an async task, because we need to use the network anyway
         new AsyncTask<Object, Void, String>() {
@@ -234,10 +235,10 @@ public class MainActivity extends AppCompatActivity {
 
                         // add the features we want
                         annotateImageRequest.setFeatures(new ArrayList<Feature>() {{
-                            Feature labelDetection = new Feature();
-                            labelDetection.setType("LABEL_DETECTION");
-                            labelDetection.setMaxResults(10);
-                            add(labelDetection);
+                            Feature disiredFeature = new Feature();
+                            disiredFeature.setType("TEXT_DETECTION");
+                            disiredFeature.setMaxResults(10);
+                            add(disiredFeature);
                         }});
 
                         // Add the list of one thing to the request
@@ -263,7 +264,12 @@ public class MainActivity extends AppCompatActivity {
             }
 
             protected void onPostExecute(String result) {
-                mImageDetails.setText(result);
+
+                Log.d("result",result);
+                Intent intent = new Intent(getApplicationContext(),ResultActivity.class);
+                intent.putExtra("result",result);
+                startActivity(intent);
+
             }
         }.execute();
     }
@@ -289,18 +295,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private String convertResponseToString(BatchAnnotateImagesResponse response) {
-        String message = "I found these things:\n\n";
 
-        List<EntityAnnotation> labels = response.getResponses().get(0).getLabelAnnotations();
-        if (labels != null) {
-            for (EntityAnnotation label : labels) {
-                message += String.format(Locale.US, "%.3f: %s", label.getScore(), label.getDescription());
-                message += "\n";
-            }
-        } else {
-            message += "nothing";
-        }
+        TextAnnotation texts = response.getResponses().get(0).getFullTextAnnotation();
 
-        return message;
+        return texts.getText();
     }
 }
