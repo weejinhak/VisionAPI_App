@@ -46,7 +46,7 @@
         android:layout_marginTop="8dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/guideline"
-        app:srcCompat="@drawable/chips_camera" />
+        app:srcCompat="@drawable/logo_camera" />
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline"
@@ -67,7 +67,8 @@
         android:textSize="60sp"
         android:textColor="@color/app_point_color"
         android:textStyle="bold"
-        android:letterSpacing="100"
+        android:letterSpacing="0"
+        
         app:layout_constraintBottom_toTopOf="@+id/guideline5"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/textView2"
