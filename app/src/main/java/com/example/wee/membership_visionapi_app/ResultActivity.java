@@ -34,6 +34,7 @@ public class ResultActivity extends AppCompatActivity implements ValueEventListe
     private BackPressCloseHandler backPressCloseHandler;
     private ArrayList<String> resultList = new ArrayList<>();
     private ArrayList<String> componentList = new ArrayList<>();
+    private ArrayList<String> allergyList = new ArrayList<>();
 
     private ImageView photoImage;
     private TextView componentTextview;
@@ -46,6 +47,8 @@ public class ResultActivity extends AppCompatActivity implements ValueEventListe
 
         Intent intent = getIntent();
         Uri photoUri = intent.getParcelableExtra("PhotoURI");
+        allergyList = intent.getStringArrayListExtra("allergies");
+        Log.d(TAG, allergyList.toString());
         photoImage = findViewById(R.id.main_image);
         componentTextview = findViewById(R.id.componentList_textView);
 
@@ -57,7 +60,6 @@ public class ResultActivity extends AppCompatActivity implements ValueEventListe
             Log.d(TAG, "Image picking failed because " + e.getMessage());
             Toast.makeText(this, R.string.image_picker_error, Toast.LENGTH_LONG).show();
         }
-
 
     }
 
@@ -119,7 +121,6 @@ public class ResultActivity extends AppCompatActivity implements ValueEventListe
         super.onStop();
         FirebaseDatabase.getInstance().getReference().removeEventListener(this);
     }
-
 
     @Override
     public void onBackPressed() {
