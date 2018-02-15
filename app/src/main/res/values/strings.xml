@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">CloudVision</string>
+    <string name="app_name">스낵픽</string>
     <string name="action_settings">로그아웃</string>
     <string name="image_details_header">Details:</string>
     <string name="image_preview_header">Preview:</string>
@@ -20,7 +20,10 @@
     <string name="fb_login_protocol_scheme">fb2043198459302948</string>
 
     <string name="component_kr">성분 :</string>
-    <string name="title_activity_main2">Main2Activity</string>
+
+    <!--Loading Layout String-->
+    <string name="layout_loadingInfo_text">찍고 알고 먹는 즐거움. 스낵픽</string>
+
 
 
 </resources>
