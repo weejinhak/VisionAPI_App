@@ -2,7 +2,9 @@ package com.example.wee.membership_visionapi_app;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -64,7 +66,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         initViews();
         initFirebaseAuth();
         initValues();
-
 
         callbackManager = CallbackManager.Factory.create();
 

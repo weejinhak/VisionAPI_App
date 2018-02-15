@@ -18,9 +18,12 @@ import android.support.constraint.ConstraintLayout;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -38,6 +41,11 @@ import com.example.wee.membership_visionapi_app.Adapter.AllergyListAdapter;
 import com.example.wee.membership_visionapi_app.Models.Allergy;
 import com.example.wee.membership_visionapi_app.Utils.PackageManagerUtils;
 import com.example.wee.membership_visionapi_app.Utils.PermissionUtils;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.HttpTransport;
@@ -100,6 +108,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView userName;
 
     private ArrayList<String> allergies = new ArrayList<>();
+    private GoogleSignInClient mGoogleSignInClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,6 +130,14 @@ public class MainActivity extends AppCompatActivity {
         setupFirebaseAuth();
         initFirebaseDatabase();
         initProfile();
+        initToolbar();
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+
+
         allergy_searchButton.setOnClickListener(searchBtnOnClickListener);
         add_btn.setOnClickListener(addBtnOnClickListener);
     }
@@ -128,18 +145,45 @@ public class MainActivity extends AppCompatActivity {
     public void initProfile() {
         if (currentUser.getPhotoUrl() != null) {
             Picasso.with(mContext).load(currentUser.getPhotoUrl().toString()).into(profilePhoto);
-            userName.setText(mAuth.getCurrentUser().getDisplayName().toString());
+            userName.setText(mAuth.getCurrentUser().getDisplayName());
         } else {
             Log.d(TAG, "User Doesn't have Profile.");
         }
     }
 
-    public View.OnClickListener deleteBtnOnClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
+    public void initToolbar() {
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
+        getSupportActionBar().setTitle("SNACKpick");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_settings) {
+            signOut();
+            return true;
         }
-    };
+
+        return super.onOptionsItemSelected(item);
+    }
+
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
 
     public View.OnClickListener searchBtnOnClickListener = new View.OnClickListener(){
 
@@ -237,6 +281,7 @@ public class MainActivity extends AppCompatActivity {
         p.dimAmount = 0.3f;
         wm.updateViewLayout(container, p);
     }
+
 
     public void startGalleryChooser() {
         if (PermissionUtils.requestPermission(this, GALLERY_PERMISSIONS_REQUEST, Manifest.permission.READ_EXTERNAL_STORAGE)) {
@@ -443,7 +488,6 @@ public class MainActivity extends AppCompatActivity {
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 Log.d(TAG,"datasnapshot" + dataSnapshot.getValue());
                 Allergy allergy = dataSnapshot.getValue(Allergy.class);
-//                Allergy allergy = new Allergy(mText);
                 if (allergy != null) {
                     allergy.setFirebaseKey(dataSnapshot.getKey());
                 }
@@ -463,8 +507,9 @@ public class MainActivity extends AppCompatActivity {
                 int count = mAdapter.getCount();
                 for (int i = 0; i < count; i++) {
                     if (mAdapter.getItem(i).getFirebaseKey().equals(firebaseKey)) {
-                        mAdapter.remove(mAdapter.getItem(i));
-                        allergies.remove(mAdapter.getItem(i).getName());
+                        Allergy position = mAdapter.getItem(i);
+                        mAdapter.remove(position);
+                        allergies.remove(position.getName());
                         break;
                     }
                 }
@@ -518,6 +563,19 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(mContext, LoginActivity.class);
             startActivity(intent);
         }
+    }
+
+    private void signOut() {
+        // Firebase sign out
+        mGoogleSignInClient.signOut().addOnCompleteListener(this,
+                new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+                        startActivity(intent);
+                    }
+                });
+        mAuth.signOut();
     }
 
     @Override

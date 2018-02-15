@@ -1,9 +1,5 @@
 package com.example.wee.membership_visionapi_app.Models;
 
-/**
- * Created by andong-won on 2018. 2. 13..
- */
-
 public class Allergy {
     private String name;
     private String firebaseKey;

@@ -15,8 +15,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.util.ArrayList;
-
 import static android.content.ContentValues.TAG;
 
 
@@ -36,7 +34,7 @@ public class AllergyListAdapter extends ArrayAdapter<Allergy> {
     }
 
     private View setView(LayoutInflater inflater) {
-        View convertView = inflater.inflate(R.layout.activity_user_allergy_item, null);
+        View convertView = inflater.inflate(R.layout.allergy_item, null);
         ViewHolder holder = new ViewHolder();
         holder.bindView(convertView);
         convertView.setTag(holder);
@@ -65,7 +63,7 @@ public class AllergyListAdapter extends ArrayAdapter<Allergy> {
         ImageButton mDeleteBtn;
 
         private void bindView(View convertView) {
-            mAllergyName = convertView.findViewById(R.id.component_name_textview);
+            mAllergyName = convertView.findViewById(R.id.allergy_name_textview);
             mDeleteBtn = convertView.findViewById(R.id.item_delete_btn);
         }
 
