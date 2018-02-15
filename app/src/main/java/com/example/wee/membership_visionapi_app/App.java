@@ -14,7 +14,7 @@ public class App extends Application {
         super.onCreate();
 
         Typekit.getInstance()
-                .addNormal(Typekit.createFromAsset(this,"fonts/NanumBarunpenR.otf"))
-                .addBold(Typekit.createFromAsset(this,"fonts/NanumBarunpenB.otf"));
+                .addNormal(Typekit.createFromAsset(this,"fonts/NanumBarunGothic.ttf"))
+                .addBold(Typekit.createFromAsset(this,"fonts/NanumBarunGothicBold.ttf"));
     }
 }

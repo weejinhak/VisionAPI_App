@@ -22,6 +22,9 @@
 
     <string name="component_kr">성분 :</string>
 
+    <!--Loading Layout String-->
+    <string name="layout_loadingInfo_text">찍고 알고 먹는 즐거움. 스낵픽</string>
+
 
 
 </resources>
