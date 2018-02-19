@@ -9,7 +9,7 @@ import java.io.Serializable;
 public class AllergyIngredient implements Serializable {
     private String materialId;
     private String materialName;
-    private boolean isMyAllergy;
+    private boolean isMyAllergy=false;
 
     public AllergyIngredient() {
     }

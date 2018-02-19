@@ -10,7 +10,7 @@ public class FoodMaterial implements Serializable {
 
     private String materialName;
     private String materialStructure;
-    private boolean isMyAllergy;
+    private boolean isMyAllergy=false;
 
     public FoodMaterial() {
     }
