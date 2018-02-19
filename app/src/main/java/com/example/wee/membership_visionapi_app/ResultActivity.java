@@ -81,7 +81,7 @@ public class ResultActivity extends AppCompatActivity implements ValueEventListe
         AdView mAdView = findViewById(R.id.adView);
         /*divice Id */
         Log.d("Test_Device_Id", AdRequest.DEVICE_ID_EMULATOR);
-        AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+        AdRequest adRequest = new AdRequest.Builder()
                 .build();
         mAdView.loadAd(adRequest);
 
