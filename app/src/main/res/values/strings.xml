@@ -33,5 +33,7 @@
     <string name="snack_image_description">snack_image</string>
     <string name="item_image_description">Item Image</string>
 
+    <!--AddMob-->
+    <string name="banner_add_unit_id">ca-app-pub-7512125801944770/2456463917</string>
 
 </resources>

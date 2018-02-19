@@ -17,11 +17,13 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
-
 import com.example.wee.membership_visionapi_app.Adapter.ComponentListAdapter;
 import com.example.wee.membership_visionapi_app.Handler.BackPressCloseHandler;
 import com.example.wee.membership_visionapi_app.Models.Component;
 import com.facebook.login.LoginManager;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdView;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -45,6 +47,7 @@ import static java.lang.Boolean.TRUE;
 
 public class ResultActivity extends AppCompatActivity implements ValueEventListener {
     private static final String TAG = ResultActivity.class.getSimpleName();
+
     private BackPressCloseHandler backPressCloseHandler;
     private ArrayList<String> resultList = new ArrayList<>();
     private ArrayList<String> componentList = new ArrayList<>();
@@ -66,12 +69,22 @@ public class ResultActivity extends AppCompatActivity implements ValueEventListe
         setContentView(R.layout.activity_result);
         backPressCloseHandler = new BackPressCloseHandler(this);
 
+
         Intent intent = getIntent();
         Uri photoUri = intent.getParcelableExtra("PhotoURI");
         allergyList = intent.getStringArrayListExtra("allergies");
         Log.d(TAG, allergyList.toString());
         photoImage = findViewById(R.id.item_image);
         mListView = findViewById(R.id.component_listView);
+
+        //광고삽입
+        AdView mAdView = findViewById(R.id.adView);
+        /*divice Id */
+        Log.d("Test_Device_Id", AdRequest.DEVICE_ID_EMULATOR);
+        AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+                .build();
+        mAdView.loadAd(adRequest);
+
         mAdapter = new ComponentListAdapter(this, 0);
 
         mListView.setAdapter(mAdapter);
@@ -159,16 +172,16 @@ public class ResultActivity extends AppCompatActivity implements ValueEventListe
 
         //새로운 방안 키값을 일일이 집어넣음
         for (DataSnapshot fileSnapshot : dataSnapshot.child("SNACK").child(keyString).getChildren()) {
-            Log.d(TAG,"fileSnapshot: " + fileSnapshot);
+            Log.d(TAG, "fileSnapshot: " + fileSnapshot);
             componentList.add((String) fileSnapshot.getValue());
         }
 
         // 사용자가 정한 유해성분만 리스트뷰에 추가
-        for ( int j = 0; j < allergyList.size(); j++){
-            for ( int i = 0; i < componentList.size(); i++ ) {
+        for (int j = 0; j < allergyList.size(); j++) {
+            for (int i = 0; i < componentList.size(); i++) {
                 Log.d(TAG, allergyList.get(j) + " ? " + componentList.get(i));
 
-                if(componentList.get(i).contains(allergyList.get(j))) {
+                if (componentList.get(i).contains(allergyList.get(j))) {
                     Log.d(TAG, "allergy found!! - " + allergyList.get(j));
                     Component component = new Component(componentList.get(i), TRUE);
                     mAdapter.add(component);
@@ -179,7 +192,7 @@ public class ResultActivity extends AppCompatActivity implements ValueEventListe
         }
 
         // 나머지 성분 리스트뷰에 추가
-        for ( int i = 0; i < componentList.size(); i++ ) {
+        for (int i = 0; i < componentList.size(); i++) {
             Component component = new Component(componentList.get(i), FALSE);
             mAdapter.add(component);
         }
@@ -246,7 +259,7 @@ public class ResultActivity extends AppCompatActivity implements ValueEventListe
      * Setup the firebase auth object
      */
 
-    private void setupFirebaseAuth(){
+    private void setupFirebaseAuth() {
         Log.d(TAG, "setupFirebaseAuth: setting up firebase auth.");
 
         mAuth = FirebaseAuth.getInstance();
@@ -272,10 +285,10 @@ public class ResultActivity extends AppCompatActivity implements ValueEventListe
         };
     }
 
-    private void checkCurrentUser(FirebaseUser user){
+    private void checkCurrentUser(FirebaseUser user) {
         Log.d(TAG, "checkCurrentUser: checking if user is logged in.");
 
-        if(user == null){
+        if (user == null) {
             Intent intent = new Intent(mContext, LoginActivity.class);
             startActivity(intent);
         }
