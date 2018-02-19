@@ -455,7 +455,7 @@ public class MainActivity extends AppCompatActivity {
         }.execute();
     }
 
-    public Bitmap scaleBitmapDown(Bitmap bitmap, int maxDimension) {
+    public static Bitmap scaleBitmapDown(Bitmap bitmap, int maxDimension) {
 
         int originalWidth = bitmap.getWidth();
         int originalHeight = bitmap.getHeight();

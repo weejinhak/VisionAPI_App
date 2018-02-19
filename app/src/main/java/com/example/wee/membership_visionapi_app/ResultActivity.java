@@ -99,7 +99,7 @@ public class ResultActivity extends AppCompatActivity implements ValueEventListe
 
 
         try {
-            Bitmap bitmap = scaleBitmapDown(MediaStore.Images.Media.getBitmap(getContentResolver(), photoUri), 1200);
+            Bitmap bitmap = MainActivity.scaleBitmapDown(MediaStore.Images.Media.getBitmap(getContentResolver(), photoUri), 1200);
             photoImage.setImageBitmap(bitmap);
 
         } catch (IOException e) {
@@ -229,27 +229,7 @@ public class ResultActivity extends AppCompatActivity implements ValueEventListe
 
         return resultList;
     }
-
-    public Bitmap scaleBitmapDown(Bitmap bitmap, int maxDimension) {
-
-        int originalWidth = bitmap.getWidth();
-        int originalHeight = bitmap.getHeight();
-        int resizedWidth = maxDimension;
-        int resizedHeight = maxDimension;
-
-        if (originalHeight > originalWidth) {
-            resizedHeight = maxDimension;
-            resizedWidth = (int) (resizedHeight * (float) originalWidth / (float) originalHeight);
-        } else if (originalWidth > originalHeight) {
-            resizedWidth = maxDimension;
-            resizedHeight = (int) (resizedWidth * (float) originalHeight / (float) originalWidth);
-        } else if (originalHeight == originalWidth) {
-            resizedHeight = maxDimension;
-            resizedWidth = maxDimension;
-        }
-        return Bitmap.createScaledBitmap(bitmap, resizedWidth, resizedHeight, false);
-    }
-
+    
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(TypekitContextWrapper.wrap(newBase));
