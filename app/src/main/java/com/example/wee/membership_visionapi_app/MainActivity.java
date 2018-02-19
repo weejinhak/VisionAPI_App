@@ -39,14 +39,15 @@ import android.widget.Toast;
 
 import com.example.wee.membership_visionapi_app.Adapter.AllergyListAdapter;
 import com.example.wee.membership_visionapi_app.Models.Allergy;
+import com.example.wee.membership_visionapi_app.Models.AllergyIngredient;
+import com.example.wee.membership_visionapi_app.Models.Food;
+import com.example.wee.membership_visionapi_app.Models.FoodMaterial;
 import com.example.wee.membership_visionapi_app.Utils.PackageManagerUtils;
 import com.example.wee.membership_visionapi_app.Utils.PermissionUtils;
-import com.facebook.login.LoginManager;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.HttpTransport;
@@ -68,12 +69,24 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 import com.squareup.picasso.Picasso;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -141,6 +154,22 @@ public class MainActivity extends AppCompatActivity {
 
         allergy_searchButton.setOnClickListener(searchBtnOnClickListener);
         add_btn.setOnClickListener(addBtnOnClickListener);
+
+        Button barcodeSearchBtn = (Button)findViewById(R.id.allergy_search_button2);
+        barcodeSearchBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                IntentIntegrator integrator = new IntentIntegrator(MainActivity.this);
+                integrator.setDesiredBarcodeFormats(IntentIntegrator.ONE_D_CODE_TYPES);
+                integrator.setPrompt("Scan a barcode");
+
+                integrator.setOrientationLocked(false);
+                integrator.setBeepEnabled(false);
+
+                integrator.initiateScan();
+
+            }
+        });
     }
 
     public void initProfile() {
@@ -310,6 +339,10 @@ public class MainActivity extends AppCompatActivity {
         return new File(dir, FILE_NAME);
     }
 
+    //바코드
+
+    private String barcodeResult;
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -322,7 +355,164 @@ public class MainActivity extends AppCompatActivity {
             intentPhotoUri=photoUri;
             uploadImage(photoUri);
         }
+
+        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+
+        if(result != null) {
+            if(result.getContents() == null) {
+                //Toast.makeText(this, "Cancelled", Toast.LENGTH_LONG).show();
+            } else {
+                //Toast.makeText(this, "Scanned: " + result.getContents(), Toast.LENGTH_LONG).show();
+                barcodeResult=result.getContents();
+                getSnackDataByBarcode();
+
+            }
+        }
+
     }
+
+    public void getSnackDataByBarcode(){
+        String resultText = "";
+
+        try {
+            resultText = new Task().execute().get();
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        Log.i("##",resultText);
+
+    }
+
+    public class Task extends AsyncTask<String, Void, String> {
+        private final String KEY = "5bf53c4f-84cb-4522-b57f-1e83fa076ef0";
+        private final String UID = "b3597253-362e-4c54-8a83-4e7a846c3681";
+        private final String BASE_URL = "https://apis.eatsight.com/foodinfo/1.0/foods";
+        private HttpURLConnection conn = null;
+        private URL url = null;
+
+
+        private String getResponseMsg(String resourceURL) throws IOException {
+            String data="";
+            String str="";
+            url = new URL(BASE_URL +resourceURL);
+            conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestProperty("Content-Type", "application/json;charset=utf-8");
+            conn.setRequestProperty("DS-ApplicationKey", KEY);
+            conn.setRequestProperty("DS-AccessToken", UID);
+
+            if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                InputStreamReader responseBodyReader = new InputStreamReader(conn.getInputStream(), "UTF-8");
+                BufferedReader reader = new BufferedReader(responseBodyReader);
+                StringBuffer buffer = new StringBuffer();
+                while ((str = reader.readLine()) != null) {
+                    buffer.append(str);
+                }
+                data = buffer.toString();
+
+                reader.close();
+            }
+
+            conn.disconnect();
+
+
+            return data;
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            String receiveMsg = "";
+            Food food=new Food();
+            try {
+                receiveMsg = getResponseMsg("?foodType=PFD&searchField=barcode&offset=0&limit=1&searchValue="+barcodeResult);
+                JSONArray jsonArray = new JSONObject(receiveMsg).getJSONArray("items");
+
+                JSONObject jsonObject = jsonArray.getJSONObject(0);
+                String foodId = jsonObject.optString("foodId");
+                if(!foodId.isEmpty()){
+                    food = getFoodResult(new JSONObject(getResponseMsg("/"+foodId)));
+                }
+
+                Intent intent = new Intent(MainActivity.this,FoodResultActivity.class);
+                intent.putExtra("food-result",food);
+                startActivity(intent);
+
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return receiveMsg;
+        }
+
+        private Food getFoodResult(JSONObject jsonObject) throws JSONException, IOException {
+            int count=0;
+
+            Food food = new Food();
+            food.setFoodId(jsonObject.optString("foodId"));
+            food.setThumbnailUrl(jsonObject.optString("thumbnailUrl"));
+            food.setBarcode(jsonObject.optString("barcode"));
+            food.setFoodName(jsonObject.optString("foodName"));
+            food.setTags(jsonObject.optString("tags"));
+            food.setFoodClassifyId(jsonObject.optString("foodClassifyId"));
+            food.setFoodClassifyName(jsonObject.optString("foodClassifyName"));
+
+            List<FoodMaterial> foodMaterials = new ArrayList<>();
+            JSONArray foodMaterialsJArray = jsonObject.optJSONArray("foodMaterials");
+            if(foodMaterialsJArray!=null) {
+                for (int i = 0; i < foodMaterialsJArray.length(); i++) {
+                    JSONObject jObject = foodMaterialsJArray.getJSONObject(i);
+                    FoodMaterial foodMaterial = new FoodMaterial();
+                    String materialName = jObject.optString("materialName");
+                    foodMaterial.setMaterialName(materialName);
+                    foodMaterial.setMaterialStructure(jObject.optString("materialStructure"));
+                    for(String my : allergies){
+                        if(materialName.equals(my)) {
+                            foodMaterial.setMyAllergy(true);
+                            count++;
+                        }else
+                            foodMaterial.setMyAllergy(false);
+                    }
+                    foodMaterials.add(foodMaterial);
+                }
+            }
+            food.setFoodMaterials(foodMaterials);
+
+            List<AllergyIngredient> allergyIngredients = new ArrayList<>();
+            JSONArray allergyJArray = jsonObject.optJSONArray("allergyIngredient");
+            if(allergyJArray!=null) {
+                for (int j = 0; j < allergyJArray.length(); j++) {
+                    JSONObject jObject = allergyJArray.getJSONObject(j);
+                    AllergyIngredient allergyIngredient = new AllergyIngredient();
+                    String materialId = jObject.optString("materialId");
+                    allergyIngredient.setMaterialId(materialId);
+                    String materialName = jObject.optString("materialName");
+                    allergyIngredient.setMaterialName(materialName);
+
+                    for(String my : allergies){
+                        if(materialName.equals(my)) {
+                            allergyIngredient.setMyAllergy(true);
+                            count++;
+                        }else
+                            allergyIngredient.setMyAllergy(false);
+                    }
+                    allergyIngredients.add(allergyIngredient);
+                }
+            }
+            food.setAllergyIngredients(allergyIngredients);
+
+            food.setCount(count);
+
+            return food;
+        }
+
+    }
+
+    //바코드 여기까지
 
     @Override
     public void onRequestPermissionsResult(
@@ -571,13 +761,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void signOut() {
-
         // Firebase sign out
-        LoginManager.getInstance().logOut();
         mGoogleSignInClient.signOut().addOnCompleteListener(this,
                 new OnCompleteListener<Void>() {
                     @Override
-                    public void onComplete(@NonNull Task<Void> task) {
+                    public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
                         Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                         startActivity(intent);
                     }
