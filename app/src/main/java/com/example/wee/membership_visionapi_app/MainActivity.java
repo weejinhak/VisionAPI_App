@@ -46,10 +46,12 @@ import com.example.wee.membership_visionapi_app.Utils.PackageManagerUtils;
 import com.example.wee.membership_visionapi_app.Utils.PermissionUtils;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.facebook.login.LoginManager;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.HttpTransport;
@@ -482,11 +484,10 @@ public class MainActivity extends AppCompatActivity {
                     foodMaterial.setMaterialName(materialName);
                     foodMaterial.setMaterialStructure(jObject.optString("materialStructure"));
                     for(String my : allergies){
-                        if(materialName.equals(my)) {
+                        if(materialName.equals(my)&&!foodMaterial.isMyAllergy()) {
                             foodMaterial.setMyAllergy(true);
                             count++;
-                        }else
-                            foodMaterial.setMyAllergy(false);
+                        }
                     }
                     foodMaterials.add(foodMaterial);
                 }
@@ -505,11 +506,11 @@ public class MainActivity extends AppCompatActivity {
                     allergyIngredient.setMaterialName(materialName);
 
                     for(String my : allergies){
-                        if(materialName.equals(my)) {
+                        if(materialName.equals(my)&&!allergyIngredient.isMyAllergy()) {
                             allergyIngredient.setMyAllergy(true);
                             count++;
-                        }else
-                            allergyIngredient.setMyAllergy(false);
+                        }
+
                     }
                     allergyIngredients.add(allergyIngredient);
                 }
