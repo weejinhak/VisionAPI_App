@@ -140,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
         profilePhoto = findViewById(R.id.profile_photo);
         add_btn = findViewById(R.id.allergy_add_button);
         mListView = findViewById(R.id.my_allergy_listView);
-        Button allergy_searchButton = findViewById(R.id.allergy_search_button);
+        ImageButton allergy_searchButton = findViewById(R.id.allergy_search_button);
         userName = findViewById(R.id.userName);
 
         mListView.setAdapter(mAdapter);
@@ -159,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
         allergy_searchButton.setOnClickListener(searchBtnOnClickListener);
         add_btn.setOnClickListener(addBtnOnClickListener);
 
-        Button barcodeSearchBtn = (Button)findViewById(R.id.allergy_search_button2);
+        ImageButton barcodeSearchBtn = findViewById(R.id.allergy_search_button2);
         barcodeSearchBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -488,7 +488,6 @@ public class MainActivity extends AppCompatActivity {
                             foodMaterial.setMyAllergy(true);
                             count++;
                         }
-                        Log.i("0000",i+" "+foodMaterial.isMyAllergy()+" "+foodMaterial.getMaterialName());
                     }
                     foodMaterials.add(foodMaterial);
                 }
