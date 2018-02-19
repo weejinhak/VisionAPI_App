@@ -55,7 +55,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:text="@string/allergy_listBox_title_text"
-        android:textColor="@color/facebook_color"
+        android:textColor="@color/app_point_text_color"
         android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/my_allergy_listView"
@@ -88,32 +88,32 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.657" />
 
-    <Button
+    <ImageButton
         android:id="@+id/allergy_search_button"
-        android:layout_width="120dp"
-        android:layout_height="50dp"
+        android:layout_width="100dp"
+        android:layout_height="60dp"
         android:layout_marginBottom="8dp"
+        android:layout_marginEnd="16dp"
         android:layout_marginTop="8dp"
         android:background="@drawable/rounded"
-        android:text="@string/allergy_searchButton_text"
-        android:textColor="@color/facebook_color"
-        android:textSize="20sp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/photo_camera_addtext"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/allergy_search_button2"
         app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/my_allergy_listView" />
 
-    <Button
+    <ImageButton
         android:id="@+id/allergy_search_button2"
-        android:layout_width="120dp"
-        android:layout_height="50dp"
+        android:layout_width="100dp"
+        android:layout_height="60dp"
         android:layout_marginBottom="8dp"
         android:layout_marginTop="8dp"
         android:background="@drawable/rounded"
-        android:text="@string/allergy_searchButton_text1"
-        android:textColor="@color/facebook_color"
-        android:textSize="20sp"
+        android:src="@drawable/bars_code_addtext"
+        android:scaleType="fitCenter"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
