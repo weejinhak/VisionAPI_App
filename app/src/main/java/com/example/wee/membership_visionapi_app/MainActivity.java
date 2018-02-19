@@ -41,6 +41,7 @@ import com.example.wee.membership_visionapi_app.Adapter.AllergyListAdapter;
 import com.example.wee.membership_visionapi_app.Models.Allergy;
 import com.example.wee.membership_visionapi_app.Utils.PackageManagerUtils;
 import com.example.wee.membership_visionapi_app.Utils.PermissionUtils;
+import com.facebook.login.LoginManager;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -572,6 +573,7 @@ public class MainActivity extends AppCompatActivity {
     private void signOut() {
 
         // Firebase sign out
+        LoginManager.getInstance().logOut();
         mGoogleSignInClient.signOut().addOnCompleteListener(this,
                 new OnCompleteListener<Void>() {
                     @Override

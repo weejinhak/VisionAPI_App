@@ -21,6 +21,7 @@ import android.widget.Toast;
 import com.example.wee.membership_visionapi_app.Adapter.ComponentListAdapter;
 import com.example.wee.membership_visionapi_app.Handler.BackPressCloseHandler;
 import com.example.wee.membership_visionapi_app.Models.Component;
+import com.facebook.login.LoginManager;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -282,7 +283,7 @@ public class ResultActivity extends AppCompatActivity implements ValueEventListe
 
     private void signOut() {
         // Firebase sign out
-
+        LoginManager.getInstance().logOut();
         mAuth.signOut();
         mGoogleSignInClient.signOut().addOnCompleteListener(this,
                 new OnCompleteListener<Void>() {
