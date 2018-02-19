@@ -17,8 +17,9 @@
             android:layout_centerVertical="true"
             android:layout_marginStart="10dp"
             android:hint="@string/component"
+            android:textColorHint="@color/facebook_color"
             android:textAlignment="center"
-            android:textColor="@color/black"
+            android:textColor="@color/facebook_color"
             android:textSize="22sp" />
 
     </RelativeLayout>

@@ -23,7 +23,7 @@
                 android:layout_centerVertical="true"
                 android:layout_marginStart="10dp"
                 android:textAlignment="center"
-                android:textColor="@color/black"
+                android:textColor="@color/facebook_color"
                 android:textSize="22sp" />
 
             <ImageButton

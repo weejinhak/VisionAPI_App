@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/layout_main"
-    android:theme="@style/AppTheme.NoActionBar">
+    android:theme="@style/AppTheme.NoActionBar"
+    android:background="#EEE">
 
     <!-- top toolbar -->
     <RelativeLayout
@@ -12,7 +13,10 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true">
+        android:layout_alignParentTop="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <include layout="@layout/snippet_toolbar" />
 
@@ -35,10 +39,10 @@
         android:id="@+id/userName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
         android:hint="@string/username_hint"
+        android:textColorHint="@color/facebook_color"
         android:textAlignment="center"
+        android:textColor="@color/facebook_color"
         app:layout_constraintEnd_toStartOf="@+id/guideline3"
         app:layout_constraintStart_toStartOf="@+id/guideline2"
         app:layout_constraintTop_toBottomOf="@+id/profile_photo" />
@@ -51,6 +55,8 @@
         android:layout_marginBottom="8dp"
         android:text="@string/allergy_listBox_title_text"
         android:textSize="16sp"
+        android:textColor="@color/facebook_color"
+        android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/my_allergy_listView"
         app:layout_constraintStart_toEndOf="@+id/guideline2"
         app:layout_constraintStart_toStartOf="@+id/guideline2" />
@@ -81,8 +87,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.657" />
 
-
-
     <Button
         android:id="@+id/allergy_search_button"
         android:layout_width="200dp"
@@ -93,7 +97,7 @@
         android:layout_marginTop="8dp"
         android:background="@drawable/rounded"
         android:text="@string/allergy_searchButton_text"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/facebook_color"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
