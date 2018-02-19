@@ -23,7 +23,15 @@
 
     <!--Loading Layout String-->
     <string name="layout_loadingInfo_text">찍고 알고 먹는 즐거움. 스낵픽</string>
-
+    <string name="username_hint">username</string>
+    <string name="allergy_add_button_description">Button for adding allergies</string>
+    <string name="component">성분</string>
+    <string name="component_input">성분 입력</string>
+    <string name="add">추가</string>
+    <string name="title_pick">pick</string>
+    <string name="title_snack">SNACK</string>
+    <string name="snack_image_description">snack_image</string>
+    <string name="item_image_description">Item Image</string>
 
 
 </resources>

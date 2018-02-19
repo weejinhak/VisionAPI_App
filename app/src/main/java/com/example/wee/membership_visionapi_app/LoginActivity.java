@@ -64,7 +64,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         initValues();
 
         callbackManager = CallbackManager.Factory.create();
-
         LoginButton loginButton =  findViewById(R.id.btn_faceBookLogin_singin);
         loginButton.setReadPermissions(Arrays.asList(EMAIL));
         // If you are using in a fragment, call loginButton.setFragment(this);
@@ -75,7 +74,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             public void onSuccess(LoginResult loginResult) {
                 // App code
                 handleFacebookAccessToken(loginResult.getAccessToken());
-
             }
 
             @Override
@@ -90,8 +88,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         });
     }
 
-    private void handleFacebookAccessToken(AccessToken token) {
 
+    private void handleFacebookAccessToken(AccessToken token) {
         AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -101,8 +99,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             // Sign in success, update UI with the signed-in user's information
                             Toast.makeText(getApplicationContext(), "페이스북 로그인 성공",
                                     Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                            startActivity(intent);
                         } else {
                             // If sign in fails, display a message to the user.
+                            Toast.makeText(getApplicationContext(), "페이스북 로그인 실패",
+                                    Toast.LENGTH_SHORT).show();
                         }
                         // ...
                     }
@@ -222,8 +224,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         switch (v.getId()) {
             case R.id.btn_google_signin:
                 googleSignIn();
-                Toast.makeText(LoginActivity.this, "Sign In.",
-                        Toast.LENGTH_SHORT).show();
                 break;
 
         }

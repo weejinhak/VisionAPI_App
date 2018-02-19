@@ -18,7 +18,7 @@
 
 
     <ImageView
-        android:id="@+id/main_image"
+        android:id="@+id/item_image"
         android:layout_width="match_parent"
         android:layout_height="200dp"
         android:scaleType="fitCenter"
@@ -27,7 +27,8 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.51" />
+        app:layout_constraintVertical_bias="0.51"
+        android:contentDescription="@string/item_image_description" />
 
     <ListView
         android:id="@+id/component_listView"
@@ -43,17 +44,5 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.8" />
-
-    <!--<TextView-->
-        <!--android:id="@+id/componentList_textView"-->
-        <!--android:layout_width="299dp"-->
-        <!--android:layout_height="200dp"-->
-        <!--android:gravity="center_horizontal"-->
-        <!--android:text="여기다가 붙여진다"-->
-        <!--android:textColor="#000000"-->
-        <!--app:layout_constraintBottom_toBottomOf="parent"-->
-        <!--app:layout_constraintEnd_toEndOf="parent"-->
-        <!--app:layout_constraintStart_toStartOf="parent"-->
-        <!--app:layout_constraintTop_toBottomOf="@+id/main_image" />-->
 
 </android.support.constraint.ConstraintLayout>

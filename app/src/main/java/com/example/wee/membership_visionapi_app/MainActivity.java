@@ -154,7 +154,6 @@ public class MainActivity extends AppCompatActivity {
     public void initToolbar() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
         getSupportActionBar().setTitle("SNACKpick");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -284,6 +283,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void startGalleryChooser() {
+        Log.d(TAG, "starting gallery");
         if (PermissionUtils.requestPermission(this, GALLERY_PERMISSIONS_REQUEST, Manifest.permission.READ_EXTERNAL_STORAGE)) {
             Intent intent = new Intent();
             intent.setType("image/*");
@@ -294,6 +294,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startCamera() {
+        Log.d(TAG, "starting camera");
         if (PermissionUtils.requestPermission(this, CAMERA_PERMISSIONS_REQUEST, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA)) {
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             Uri photoUri = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider", getCameraFile());
@@ -325,6 +326,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(
             int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        Log.d(TAG, "requesting permission");
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case CAMERA_PERMISSIONS_REQUEST:
@@ -473,6 +475,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private String convertResponseToString(BatchAnnotateImagesResponse response) {
+        if (response.getResponses().get(0).getFullTextAnnotation() == null)
+            return "";
 
         TextAnnotation texts = response.getResponses().get(0).getFullTextAnnotation();
 
@@ -566,6 +570,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void signOut() {
+
         // Firebase sign out
         mGoogleSignInClient.signOut().addOnCompleteListener(this,
                 new OnCompleteListener<Void>() {

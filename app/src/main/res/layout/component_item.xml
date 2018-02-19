@@ -16,7 +16,7 @@
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
             android:layout_marginStart="10dp"
-            android:hint="성분"
+            android:hint="@string/component"
             android:textAlignment="center"
             android:textColor="@color/black"
             android:textSize="22sp" />

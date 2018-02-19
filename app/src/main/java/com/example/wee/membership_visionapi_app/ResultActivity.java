@@ -15,14 +15,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 
-import com.example.wee.membership_visionapi_app.Adapter.AllergyListAdapter;
 import com.example.wee.membership_visionapi_app.Adapter.ComponentListAdapter;
 import com.example.wee.membership_visionapi_app.Handler.BackPressCloseHandler;
-import com.example.wee.membership_visionapi_app.Models.Allergy;
 import com.example.wee.membership_visionapi_app.Models.Component;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -72,7 +69,7 @@ public class ResultActivity extends AppCompatActivity implements ValueEventListe
         Uri photoUri = intent.getParcelableExtra("PhotoURI");
         allergyList = intent.getStringArrayListExtra("allergies");
         Log.d(TAG, allergyList.toString());
-        photoImage = findViewById(R.id.main_image);
+        photoImage = findViewById(R.id.item_image);
         mListView = findViewById(R.id.component_listView);
         mAdapter = new ComponentListAdapter(this, 0);
 
@@ -161,6 +158,7 @@ public class ResultActivity extends AppCompatActivity implements ValueEventListe
 
         //새로운 방안 키값을 일일이 집어넣음
         for (DataSnapshot fileSnapshot : dataSnapshot.child("SNACK").child(keyString).getChildren()) {
+            Log.d(TAG,"fileSnapshot: " + fileSnapshot);
             componentList.add((String) fileSnapshot.getValue());
         }
 
@@ -284,6 +282,8 @@ public class ResultActivity extends AppCompatActivity implements ValueEventListe
 
     private void signOut() {
         // Firebase sign out
+
+        mAuth.signOut();
         mGoogleSignInClient.signOut().addOnCompleteListener(this,
                 new OnCompleteListener<Void>() {
                     @Override
@@ -292,6 +292,6 @@ public class ResultActivity extends AppCompatActivity implements ValueEventListe
                         startActivity(intent);
                     }
                 });
-        mAuth.signOut();
+
     }
 }
