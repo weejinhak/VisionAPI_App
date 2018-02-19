@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ads="http://schemas.android.com/apk/res-auto"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layout_main"
@@ -82,6 +83,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="28dp"
         android:background="@drawable/list_rounded"
+        ads:layout_constraintBottom_toTopOf="@+id/adView1"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -98,6 +100,8 @@
         android:background="@drawable/rounded"
         android:scaleType="fitCenter"
         android:src="@drawable/photo_camera_addtext"
+        ads:layout_constraintBottom_toTopOf="@+id/adView1"
+        ads:layout_constraintVertical_bias="0.163"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/allergy_search_button2"
         app:layout_constraintHorizontal_bias="0.5"
@@ -112,13 +116,29 @@
         android:layout_marginBottom="8dp"
         android:layout_marginTop="8dp"
         android:background="@drawable/rounded"
-        android:src="@drawable/bars_code_addtext"
         android:scaleType="fitCenter"
+        android:src="@drawable/bars_code_addtext"
+        ads:layout_constraintBottom_toTopOf="@+id/adView1"
+        ads:layout_constraintVertical_bias="0.163"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/allergy_search_button"
         app:layout_constraintTop_toBottomOf="@+id/my_allergy_listView" />
+
+    <com.google.android.gms.ads.AdView
+        android:id="@+id/adView1"
+        ads:adSize="BANNER"
+        ads:adUnitId="@string/banner_add_unit_id"
+        ads:layout_constraintBottom_toBottomOf="parent"
+        ads:layout_constraintEnd_toEndOf="parent"
+        ads:layout_constraintStart_toStartOf="parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        tools:layout_editor_absoluteX="48dp"
+        tools:layout_editor_absoluteY="511dp" />
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline2"

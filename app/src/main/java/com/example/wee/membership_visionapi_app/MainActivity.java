@@ -44,6 +44,8 @@ import com.example.wee.membership_visionapi_app.Models.Food;
 import com.example.wee.membership_visionapi_app.Models.FoodMaterial;
 import com.example.wee.membership_visionapi_app.Utils.PackageManagerUtils;
 import com.example.wee.membership_visionapi_app.Utils.PermissionUtils;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -136,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
         profilePhoto = findViewById(R.id.profile_photo);
         add_btn = findViewById(R.id.allergy_add_button);
         mListView = findViewById(R.id.my_allergy_listView);
-        Button allergy_searchButton = findViewById(R.id.allergy_search_button);
+        ImageButton allergy_searchButton = findViewById(R.id.allergy_search_button);
         userName = findViewById(R.id.userName);
 
         mListView.setAdapter(mAdapter);
@@ -155,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
         allergy_searchButton.setOnClickListener(searchBtnOnClickListener);
         add_btn.setOnClickListener(addBtnOnClickListener);
 
-        Button barcodeSearchBtn = (Button)findViewById(R.id.allergy_search_button2);
+        ImageButton barcodeSearchBtn = findViewById(R.id.allergy_search_button2);
         barcodeSearchBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -170,6 +172,15 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+        //광고삽입
+        AdView mAdView = findViewById(R.id.adView1);
+        /*divice Id */
+        Log.d("Test_Device_Id", AdRequest.DEVICE_ID_EMULATOR);
+        AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+                .build();
+        mAdView.loadAd(adRequest);
+
     }
 
     public void initProfile() {
