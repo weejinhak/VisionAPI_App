@@ -13,7 +13,8 @@
 
     <!--user_Info_String-->
     <string name="allergy_listBox_title_text">알레르기 pick</string>
-    <string name="allergy_searchButton_text">제품 성분 조회하기</string>
+    <string name="allergy_searchButton_text">사진으로 조회하기</string>
+    <string name="allergy_searchButton_text1">바코드로 조회하기</string>
 
     <!--Facebook-->
     <string name="facebook_app_id">2043198459302948</string>
