@@ -44,6 +44,8 @@ import com.example.wee.membership_visionapi_app.Models.Food;
 import com.example.wee.membership_visionapi_app.Models.FoodMaterial;
 import com.example.wee.membership_visionapi_app.Utils.PackageManagerUtils;
 import com.example.wee.membership_visionapi_app.Utils.PermissionUtils;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.facebook.login.LoginManager;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -172,6 +174,15 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+        //광고삽입
+        AdView mAdView = findViewById(R.id.adView1);
+        /*divice Id */
+        Log.d("Test_Device_Id", AdRequest.DEVICE_ID_EMULATOR);
+        AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+                .build();
+        mAdView.loadAd(adRequest);
+
     }
 
     public void initProfile() {
@@ -362,9 +373,9 @@ public class MainActivity extends AppCompatActivity {
 
         if(result != null) {
             if(result.getContents() == null) {
-                Toast.makeText(this, "Cancelled", Toast.LENGTH_LONG).show();
+                //Toast.makeText(this, "Cancelled", Toast.LENGTH_LONG).show();
             } else {
-                Toast.makeText(this, "Scanned: " + result.getContents(), Toast.LENGTH_LONG).show();
+                //Toast.makeText(this, "Scanned: " + result.getContents(), Toast.LENGTH_LONG).show();
                 barcodeResult=result.getContents();
                 getSnackDataByBarcode();
 
