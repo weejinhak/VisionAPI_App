@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/grdient"
-    tools:context="com.example.wee.membership_visionapi_app.MainActivity">
+    tools:context="com.snackpick.wee.membership_visionapi_app.com.snackpick.wee.membership_visionapi_app.MainActivity">
 
 
     <com.facebook.login.widget.LoginButton
