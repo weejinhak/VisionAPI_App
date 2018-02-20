@@ -52,8 +52,9 @@ dependencies {
     implementation 'org.jetbrains:annotations-java5:15.0'
 
     //barcode
-    compile 'com.journeyapps:zxing-android-embedded:3.5.0'
+    implementation 'com.journeyapps:zxing-android-embedded:3.5.0'
 
+    implementation 'com.android.support:multidex:1.0.1'
 
 }
 
