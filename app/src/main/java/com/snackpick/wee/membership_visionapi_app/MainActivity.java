@@ -282,11 +282,15 @@ public class MainActivity extends BaseActivity {
                         public void onClick(View v) {
                             Log.d(TAG, "add_btn_Clicked");
                             String component = componentEditText.getText().toString().trim();
-                            if(component.isEmpty())
+                            if(component.isEmpty()){
+                                componentEditText.setText("");
                                 return;
+                            }
                             for(String s : allergies){
-                                if(s.equals(component))
+                                if(s.equals(component)) {
+                                    componentEditText.setText("");
                                     return;
+                                }
                             }
 
                             Allergy allergy = new Allergy(component);
@@ -295,6 +299,8 @@ public class MainActivity extends BaseActivity {
                                     .child(mAuth.getCurrentUser().getUid().toString())
                                     .child("components")
                                     .push().setValue(allergy);
+
+                            componentEditText.setText("");
                         }
                     });
 

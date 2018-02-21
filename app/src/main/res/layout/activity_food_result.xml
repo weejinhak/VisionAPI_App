@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="#ffffff"
     tools:context="com.snackpick.wee.membership_visionapi_app.FoodResultActivity">
 
     <!-- top toolbar -->
@@ -44,7 +45,7 @@
                         android:id="@+id/foodThumbnail"
                         android:layout_marginStart="5dp"
                         android:layout_width="180dp"
-                        android:layout_height="230dp"
+                        android:layout_height="240dp"
                         android:layout_gravity="center"
                         android:src="@drawable/snack_frame"
                         />
@@ -55,7 +56,7 @@
                         android:orientation="vertical"
                         android:layout_marginTop="10dp"
                         android:layout_marginEnd="16dp"
-                        android:layout_marginStart="16dp"
+                        android:layout_marginStart="5dp"
                         android:background="@drawable/unselect_round_bg"
                         >
 

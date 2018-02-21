@@ -141,6 +141,7 @@ public class FoodResultActivity extends BaseActivity {
             textView.setBackgroundResource(R.drawable.tag_bg);
             textView.setText("#"+tags[i]);
             textView.setTag(i);
+            textView.setTextColor(Color.parseColor("#FFFFFF"));
             mTagFlowTagLayout.addView(view);
         }
 
