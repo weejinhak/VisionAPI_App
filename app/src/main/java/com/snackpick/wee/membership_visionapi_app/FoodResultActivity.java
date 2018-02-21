@@ -1,9 +1,15 @@
-package com.snackpick.wee.membership_visionapi_app;
+package com.example.wee.membership_visionapi_app;
 
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -12,12 +18,30 @@ import com.snackpick.wee.membership_visionapi_app.Models.AllergyIngredient;
 import com.snackpick.wee.membership_visionapi_app.Models.Food;
 import com.snackpick.wee.membership_visionapi_app.Models.FoodMaterial;
 import com.snackpick.wee.membership_visionapi_app.R;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
 public class FoodResultActivity extends AppCompatActivity {
+    private static final String TAG = FoodResultActivity.class.getName();
+    private Context mContext = FoodResultActivity.this;
+
+    // Firebase
+    private FirebaseAuth mAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
+    private FirebaseDatabase mFirebaseDatabase;
+    private DatabaseReference mReference;
+    private DatabaseReference mUserReference;
+    private FirebaseUser currentUser;
+    private GoogleSignInClient mGoogleSignInClient;
 
     private Food food;
     private ImageView foodThumbnail;
@@ -40,6 +64,9 @@ public class FoodResultActivity extends AppCompatActivity {
         allergyResult_tv1=(TextView)findViewById(R.id.allergyResult_tv1);
         allergyResult_tv2=(TextView)findViewById(R.id.allergyResult_tv2);
 
+        initToolbar();
+        initGoogleSign();
+        setupFirebaseAuth();
 
         foodName_tv.setText(food.getFoodName());
         Picasso.with(this).load(food.getThumbnailUrl()).into(foodThumbnail);//실패이미지 나중에
@@ -53,9 +80,9 @@ public class FoodResultActivity extends AppCompatActivity {
         allergyResult_tv2.setText(count+"개");
 
 
-        mAllergyFlowTagLayout = (FlowLayout) findViewById(R.id.allergy_flow_layout);
-        mMaterialFlowTagLayout = (FlowLayout) findViewById(R.id.material_flow_layout);
-        mTagFlowTagLayout = (FlowLayout) findViewById(R.id.tag_flow_layout);
+        mAllergyFlowTagLayout = findViewById(R.id.allergy_flow_layout);
+        mMaterialFlowTagLayout = findViewById(R.id.material_flow_layout);
+        mTagFlowTagLayout = findViewById(R.id.tag_flow_layout);
 
 
         List<AllergyIngredient> allergyIngredientList = food.getAllergyIngredients();
@@ -108,5 +135,96 @@ public class FoodResultActivity extends AppCompatActivity {
 
     }
 
+    public void initGoogleSign() {
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+    }
 
+    public void initToolbar() {
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        getSupportActionBar().setTitle("SNACKpick");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_settings) {
+            signOut();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
+
+    /**
+     * Setup the firebase auth object
+     */
+
+    private void setupFirebaseAuth(){
+        Log.d(TAG, "setupFirebaseAuth: setting up firebase auth.");
+
+        mAuth = FirebaseAuth.getInstance();
+        currentUser = mAuth.getCurrentUser();
+
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+
+                //check if the user is logged in
+                checkCurrentUser(user);
+
+                if (user != null) {
+                    // User is signed in
+                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+                } else {
+                    // User is signed out
+                    Log.d(TAG, "onAuthStateChanged:signed_out");
+                }
+                // ...
+            }
+        };
+    }
+
+    private void checkCurrentUser(FirebaseUser user){
+        Log.d(TAG, "checkCurrentUser: checking if user is logged in.");
+
+        if(user == null){
+            Intent intent = new Intent(mContext, LoginActivity.class);
+            startActivity(intent);
+        }
+    }
+
+    private void signOut() {
+        // Firebase sign out
+        mGoogleSignInClient.signOut().addOnCompleteListener(this,
+                new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
+                        Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+                        startActivity(intent);
+                    }
+                });
+        mAuth.signOut();
+    }
 }
