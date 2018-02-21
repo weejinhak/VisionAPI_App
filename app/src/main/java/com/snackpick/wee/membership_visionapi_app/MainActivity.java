@@ -25,6 +25,8 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -89,7 +91,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
 
     // Vision
@@ -125,6 +127,11 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<String> allergies = new ArrayList<>();
     private GoogleSignInClient mGoogleSignInClient;
 
+    private String myAllergyString="";
+
+    private String barcodeResult;
+    private String visionResult;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -152,7 +159,6 @@ public class MainActivity extends AppCompatActivity {
                 .build();
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
-
         allergy_searchButton.setOnClickListener(searchBtnOnClickListener);
         add_btn.setOnClickListener(addBtnOnClickListener);
 
@@ -166,9 +172,7 @@ public class MainActivity extends AppCompatActivity {
 
                 integrator.setOrientationLocked(false);
                 integrator.setBeepEnabled(false);
-
                 integrator.initiateScan();
-
             }
         });
 
@@ -277,13 +281,26 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onClick(View v) {
                             Log.d(TAG, "add_btn_Clicked");
-                            String component = componentEditText.getText().toString();
+                            String component = componentEditText.getText().toString().trim();
+                            if(component.isEmpty()){
+                                componentEditText.setText("");
+                                return;
+                            }
+                            for(String s : allergies){
+                                if(s.equals(component)) {
+                                    componentEditText.setText("");
+                                    return;
+                                }
+                            }
+
                             Allergy allergy = new Allergy(component);
 
                             mReference.child("USERS")
                                     .child(mAuth.getCurrentUser().getUid().toString())
                                     .child("components")
                                     .push().setValue(allergy);
+
+                            componentEditText.setText("");
                         }
                     });
 
@@ -354,7 +371,7 @@ public class MainActivity extends AppCompatActivity {
 
     //바코드
 
-    private String barcodeResult;
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -385,21 +402,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void getSnackDataByBarcode(){
-        String resultText = "";
-
         try {
-            resultText = new Task().execute().get();
+            new Task().execute().get();
 
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
-        Log.i("##",resultText);
 
     }
 
-    public class Task extends AsyncTask<String, Void, String> {
+    public class TextTask extends AsyncTask<String, Void, String> {
         private final String KEY = "5bf53c4f-84cb-4522-b57f-1e83fa076ef0";
         private final String UID = "b3597253-362e-4c54-8a83-4e7a846c3681";
         private final String BASE_URL = "https://apis.eatsight.com/foodinfo/1.0/foods";
@@ -439,8 +453,11 @@ public class MainActivity extends AppCompatActivity {
             String receiveMsg = "";
             Food food=new Food();
             try {
-                receiveMsg = getResponseMsg("?foodType=PFD&searchField=barcode&offset=0&limit=1&searchValue="+barcodeResult);
+//                receiveMsg = getResponseMsg("?foodType=PFD&searchField=foodName&offset=0&limit=1&searchValue="+ visionResult);
+                receiveMsg = getResponseMsg("?foodType=PFD&searchField=foodName&offset=0&limit=10&searchValue="+ "빼빼로");
                 JSONArray jsonArray = new JSONObject(receiveMsg).getJSONArray("items");
+                Log.d(TAG, "receiveMsg" + receiveMsg.toString());
+                Log.d(TAG, "jsonArray" + jsonArray.toString());
 
                 JSONObject jsonObject = jsonArray.getJSONObject(0);
                 String foodId = jsonObject.optString("foodId");
@@ -510,19 +527,147 @@ public class MainActivity extends AppCompatActivity {
                             allergyIngredient.setMyAllergy(true);
                             count++;
                         }
-
                     }
                     allergyIngredients.add(allergyIngredient);
                 }
             }
             food.setAllergyIngredients(allergyIngredients);
-
             food.setCount(count);
 
             return food;
         }
 
     }
+
+    public class Task extends AsyncTask<String, Void, String> {
+        private final String KEY = "caeda314-da4c-4f1e-a271-7cd101c752d7";
+        private final String UID = "b7bf6387-8719-4469-a50f-7d40ad4451bd";
+        private final String BASE_URL = "https://apis.eatsight.com/foodinfo/1.0/foods";
+        private HttpURLConnection conn = null;
+        private URL url = null;
+
+
+        private String getResponseMsg(String resourceURL) throws IOException {
+            String data="";
+            String str="";
+            url = new URL(BASE_URL +resourceURL);
+            conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestProperty("Content-Type", "application/json;charset=utf-8");
+            conn.setRequestProperty("DS-ApplicationKey", KEY);
+            conn.setRequestProperty("DS-AccessToken", UID);
+
+            if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                InputStreamReader responseBodyReader = new InputStreamReader(conn.getInputStream(), "UTF-8");
+                BufferedReader reader = new BufferedReader(responseBodyReader);
+                StringBuffer buffer = new StringBuffer();
+                while ((str = reader.readLine()) != null) {
+                    buffer.append(str);
+                }
+                data = buffer.toString();
+
+                reader.close();
+            }
+
+            conn.disconnect();
+
+
+            return data;
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            String receiveMsg = "";
+            Food food=new Food();
+            try {
+                receiveMsg = getResponseMsg("?foodType=PFD&searchField=barcode&offset=0&limit=1&searchValue="+barcodeResult);
+                JSONArray jsonArray = new JSONObject(receiveMsg).getJSONArray("items");
+
+                JSONObject jsonObject = jsonArray.getJSONObject(0);
+                String foodId = jsonObject.optString("foodId");
+                if(!foodId.isEmpty()){
+                    food = getFoodResult(new JSONObject(getResponseMsg("/"+foodId)));
+                }
+
+                Intent intent = new Intent(MainActivity.this,FoodResultActivity.class);
+                intent.putExtra("food-result",food);
+                startActivity(intent);
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return receiveMsg;
+        }
+
+        private Food getFoodResult(JSONObject jsonObject) throws JSONException, IOException {
+            int count=0;
+
+            Food food = new Food();
+            food.setFoodId(jsonObject.optString("foodId"));
+            food.setThumbnailUrl(jsonObject.optString("thumbnailUrl"));
+            food.setBarcode(jsonObject.optString("barcode"));
+            food.setFoodName(jsonObject.optString("foodName"));
+            food.setTags(jsonObject.optString("tags"));
+            food.setFoodClassifyId(jsonObject.optString("foodClassifyId"));
+            food.setFoodClassifyName(jsonObject.optString("foodClassifyName"));
+
+            List<FoodMaterial> foodMaterials = new ArrayList<>();
+            JSONArray foodMaterialsJArray = jsonObject.optJSONArray("foodMaterials");
+            if(foodMaterialsJArray!=null) {
+                for (int i = 0; i < foodMaterialsJArray.length(); i++) {
+                    JSONObject jObject = foodMaterialsJArray.getJSONObject(i);
+                    FoodMaterial foodMaterial = new FoodMaterial();
+                    String materialName = jObject.optString("materialName");
+                    foodMaterial.setMaterialName(materialName);
+                    foodMaterial.setMaterialStructure(jObject.optString("materialStructure"));
+                    for(String my : allergies){
+                        if((my.contains(materialName)||materialName.contains(my))&&!foodMaterial.isMyAllergy()) {
+                            foodMaterial.setMyAllergy(true);
+                            count++;
+                            if(!myAllergyString.contains(my))
+                                myAllergyString+=my+", ";
+                        }
+                    }
+                    foodMaterials.add(foodMaterial);
+                }
+            }
+            food.setFoodMaterials(foodMaterials);
+
+            List<AllergyIngredient> allergyIngredients = new ArrayList<>();
+            JSONArray allergyJArray = jsonObject.optJSONArray("allergyIngredient");
+            if(allergyJArray!=null) {
+                for (int j = 0; j < allergyJArray.length(); j++) {
+                    JSONObject jObject = allergyJArray.getJSONObject(j);
+                    AllergyIngredient allergyIngredient = new AllergyIngredient();
+                    String materialId = jObject.optString("materialId");
+                    allergyIngredient.setMaterialId(materialId);
+                    String materialName = jObject.optString("materialName");
+                    allergyIngredient.setMaterialName(materialName);
+
+                    for(String my : allergies){
+                        if((my.contains(materialName)||materialName.contains(my))&&!allergyIngredient.isMyAllergy()) {
+                            allergyIngredient.setMyAllergy(true);
+                            count++;
+                            if(!myAllergyString.contains(my))
+                                myAllergyString+=my+", ";
+                        }
+                    }
+                    allergyIngredients.add(allergyIngredient);
+                }
+            }
+            food.setAllergyIngredients(allergyIngredients);
+            food.setCount(count);
+
+            food.setMyAllergyStr(myAllergyString);
+
+            return food;
+        }
+
+    }
+
+
 
     //바코드 여기까지
 
@@ -648,11 +793,20 @@ public class MainActivity extends AppCompatActivity {
             }
 
             protected void onPostExecute(String result) {
-                Intent intent = new Intent(getApplicationContext(), ResultActivity.class);
-                intent.putExtra("result", result);
-                intent.putExtra("PhotoURI", intentPhotoUri);
-                intent.putStringArrayListExtra("allergies", allergies);
-                startActivity(intent);
+                Log.d(TAG, "got visionResult "+ visionResult);
+                visionResult = result;
+                try {
+                    new TextTask().execute().get();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
+//                Intent intent = new Intent(getApplicationContext(), ResultActivity.class);
+//                intent.putExtra("result", result);
+//                intent.putExtra("PhotoURI", intentPhotoUri);
+//                intent.putStringArrayListExtra("allergies", allergies);
+//                startActivity(intent);
             }
         }.execute();
     }

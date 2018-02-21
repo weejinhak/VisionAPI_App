@@ -23,8 +23,10 @@
                 android:layout_centerVertical="true"
                 android:layout_marginStart="10dp"
                 android:textAlignment="center"
-                android:textColor="@color/facebook_color"
-                android:textSize="15sp" />
+                android:textColor="@color/colorPrimary"
+                android:text="temp"
+                android:textStyle="bold"
+                android:textSize="17sp" />
 
             <ImageButton
                 android:id="@+id/item_delete_btn"

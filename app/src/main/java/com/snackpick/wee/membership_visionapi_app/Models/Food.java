@@ -17,6 +17,7 @@ public class Food implements Serializable {
     private List<AllergyIngredient> allergyIngredients =new ArrayList<>();//알레르기성분
 
     private int count;//해당하는 알레르기 성분 갯수
+    private String myAllergyStr;
 
     public Food() {
     }
@@ -99,5 +100,13 @@ public class Food implements Serializable {
 
     public void setAllergyIngredients(List<AllergyIngredient> allergyIngredients) {
         this.allergyIngredients = allergyIngredients;
+    }
+
+    public String getMyAllergyStr() {
+        return myAllergyStr;
+    }
+
+    public void setMyAllergyStr(String myAllergyStr) {
+        this.myAllergyStr = myAllergyStr;
     }
 }

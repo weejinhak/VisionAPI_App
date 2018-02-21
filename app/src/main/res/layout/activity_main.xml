@@ -6,7 +6,7 @@
     android:id="@+id/layout_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#EEE"
+    android:background="#f5f5f5"
     android:theme="@style/AppTheme.NoActionBar">
 
     <!-- top toolbar -->
@@ -43,8 +43,10 @@
         android:layout_height="wrap_content"
         android:hint="@string/username_hint"
         android:textAlignment="center"
-        android:textColor="@color/facebook_color"
-        android:textColorHint="@color/facebook_color"
+        android:textColor="@color/black"
+        android:textColorHint="@color/black"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="10dp"
         app:layout_constraintEnd_toStartOf="@+id/guideline3"
         app:layout_constraintStart_toStartOf="@+id/guideline2"
         app:layout_constraintTop_toBottomOf="@+id/profile_photo" />
@@ -54,7 +56,7 @@
         android:id="@+id/allergy_Title_textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="6dp"
         android:text="@string/allergy_listBox_title_text"
         android:textColor="@color/app_point_text_color"
         android:textSize="16sp"
@@ -65,8 +67,8 @@
 
     <ImageButton
         android:id="@+id/allergy_add_button"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
+        android:layout_width="22dp"
+        android:layout_height="22dp"
         android:layout_marginBottom="8dp"
         android:background="@drawable/add_vector"
         android:contentDescription="@string/allergy_add_button_description"
@@ -76,7 +78,7 @@
 
     <ListView
         android:id="@+id/my_allergy_listView"
-        android:layout_width="268dp"
+        android:layout_width="280dp"
         android:layout_height="250dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
@@ -92,11 +94,12 @@
     <ImageButton
         android:id="@+id/allergy_search_button"
         android:layout_width="100dp"
-        android:layout_height="60dp"
-        android:layout_marginEnd="16dp"
+        android:layout_height="55dp"
+        android:layout_marginEnd="30dp"
         android:layout_marginTop="8dp"
         android:background="@drawable/rounded"
         android:scaleType="fitCenter"
+        android:paddingTop="5dp"
         android:src="@drawable/photo_camera_addtext"
         ads:layout_constraintBottom_toTopOf="@+id/adView1"
         ads:layout_constraintVertical_bias="0.163"
@@ -110,10 +113,11 @@
     <ImageButton
         android:id="@+id/allergy_search_button2"
         android:layout_width="100dp"
-        android:layout_height="60dp"
+        android:layout_height="55dp"
         android:layout_marginTop="8dp"
         android:background="@drawable/rounded"
         android:scaleType="fitCenter"
+        android:paddingTop="5dp"
         android:src="@drawable/bars_code_addtext"
         ads:layout_constraintBottom_toTopOf="@+id/adView1"
         ads:layout_constraintVertical_bias="0.163"
@@ -142,14 +146,17 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_begin="85dp" />
+        ads:layout_constraintGuide_begin="74dp"
+
+        />
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_end="85dp" />
+        ads:layout_constraintGuide_end="74dp"
+         />
 
 
 </android.support.constraint.ConstraintLayout>
