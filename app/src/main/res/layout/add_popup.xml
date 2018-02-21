@@ -44,7 +44,7 @@
             android:layout_marginStart="4dp"
             android:layout_marginEnd="8dp"
             android:layout_centerVertical="true"
-            android:background="@color/colorPoint"
+            android:background="@drawable/rounded"
             android:focusable="false"
             android:focusableInTouchMode="false"
             android:text="@string/add"
