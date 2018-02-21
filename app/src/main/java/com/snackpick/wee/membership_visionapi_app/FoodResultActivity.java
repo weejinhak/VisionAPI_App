@@ -1,11 +1,10 @@
-package com.example.wee.membership_visionapi_app;
+package com.snackpick.wee.membership_visionapi_app;
 
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -17,7 +16,6 @@ import android.widget.TextView;
 import com.snackpick.wee.membership_visionapi_app.Models.AllergyIngredient;
 import com.snackpick.wee.membership_visionapi_app.Models.Food;
 import com.snackpick.wee.membership_visionapi_app.Models.FoodMaterial;
-import com.snackpick.wee.membership_visionapi_app.R;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -30,7 +28,7 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-public class FoodResultActivity extends AppCompatActivity {
+public class FoodResultActivity extends BaseActivity {
     private static final String TAG = FoodResultActivity.class.getName();
     private Context mContext = FoodResultActivity.this;
 
@@ -44,8 +42,8 @@ public class FoodResultActivity extends AppCompatActivity {
     private GoogleSignInClient mGoogleSignInClient;
 
     private Food food;
-    private ImageView foodThumbnail;
-    private TextView foodName_tv;
+    private ImageView foodThumbnail,faceImoticon;
+    private TextView foodName_tv,myAllergyStr_tv;
     private TextView allergyResult_tv1,allergyResult_tv2;
     private FlowLayout mAllergyFlowTagLayout,mMaterialFlowTagLayout,mTagFlowTagLayout;
 
@@ -63,6 +61,8 @@ public class FoodResultActivity extends AppCompatActivity {
         foodName_tv = (TextView)findViewById(R.id.foodName_tv);
         allergyResult_tv1=(TextView)findViewById(R.id.allergyResult_tv1);
         allergyResult_tv2=(TextView)findViewById(R.id.allergyResult_tv2);
+        faceImoticon = (ImageView)findViewById(R.id.face_imoticon_imageView);
+        myAllergyStr_tv =(TextView)findViewById(R.id.my_allergy_str_tv);
 
         initToolbar();
         initGoogleSign();
@@ -73,9 +73,17 @@ public class FoodResultActivity extends AppCompatActivity {
 
         int count = food.getCount();
         if(count==0){
-            allergyResult_tv1.setText(userName+"님에게 안전해요");
+            faceImoticon.setImageResource(R.drawable.happy);
+            allergyResult_tv1.setText(userName+"님\n 안전해요.");
+            myAllergyStr_tv.setText("");
         }else if(count>0){
-            allergyResult_tv1.setText(userName+"님에게 위험해요");
+            faceImoticon.setImageResource(R.drawable.sad);
+            allergyResult_tv1.setText(userName+"님\n 조심하세요!");
+            String str = food.getMyAllergyStr();
+            Log.i("@@@@",str);
+            str = food.getMyAllergyStr().substring(0,food.getMyAllergyStr().lastIndexOf(','));
+            Log.i("@@@@",str);
+            myAllergyStr_tv.setText("( "+str+" )");
         }
         allergyResult_tv2.setText(count+"개");
 
@@ -86,48 +94,51 @@ public class FoodResultActivity extends AppCompatActivity {
 
 
         List<AllergyIngredient> allergyIngredientList = food.getAllergyIngredients();
-        for (int i = 0; i < allergyIngredientList.size(); i++) {
-            AllergyIngredient a = allergyIngredientList.get(i);
-            Log.i("##",a.getMaterialName()+"  "+a.isMyAllergy());
+        if(!allergyIngredientList.isEmpty()) {
+            for (int i = 0; i < allergyIngredientList.size(); i++) {
+                AllergyIngredient a = allergyIngredientList.get(i);
 
+                View view = this.getLayoutInflater().inflate(R.layout.tag_item, null);
+                TextView textView = (TextView) view.findViewById(R.id.tv_tag);
 
-            View view = this.getLayoutInflater().inflate(R.layout.tag_item, null);
-            TextView textView = (TextView) view.findViewById(R.id.tv_tag);
+                textView.setText(a.getMaterialName());
+                textView.setTag(i);
 
-            textView.setText(a.getMaterialName());
-            textView.setTag(i);
+                if (a.isMyAllergy()) {
+                    textView.setBackgroundResource(R.drawable.select_round_bg);
+                    textView.setTextColor(Color.parseColor("#FFFFFF"));
+                }
 
-            if (a.isMyAllergy()) {
-                textView.setBackgroundResource(R.drawable.select_round_bg);
-                textView.setTextColor(Color.parseColor("#FFFFFF"));
+                mAllergyFlowTagLayout.addView(view);
+
             }
-
-            mAllergyFlowTagLayout.addView(view);
-
         }
 
         List<FoodMaterial> foodMaterials = food.getFoodMaterials();
-        for (int i = 0; i < foodMaterials.size(); i++) {
-            FoodMaterial m = foodMaterials.get(i);
-            View view = this.getLayoutInflater().inflate(R.layout.tag_item, null);
-            TextView textView = (TextView) view.findViewById(R.id.tv_tag);
-            textView.setText(m.getMaterialName());
-            textView.setTag(i);
+        if(!foodMaterials.isEmpty()) {
+            for (int i = 0; i < foodMaterials.size(); i++) {
+                FoodMaterial m = foodMaterials.get(i);
+                View view = this.getLayoutInflater().inflate(R.layout.tag_item, null);
+                TextView textView = (TextView) view.findViewById(R.id.tv_tag);
+                textView.setText(m.getMaterialName());
+                textView.setTag(i);
 
-            if (m.isMyAllergy()) {
-                textView.setBackgroundResource(R.drawable.select_round_bg);
-                textView.setTextColor(Color.parseColor("#FFFFFF"));
+                if (m.isMyAllergy()) {
+                    textView.setBackgroundResource(R.drawable.select_round_bg);
+                    textView.setTextColor(Color.parseColor("#FFFFFF"));
+
+                }
+
+                mMaterialFlowTagLayout.addView(view);
 
             }
-
-            mMaterialFlowTagLayout.addView(view);
-
         }
 
         String[] tags = food.getTags().split(",");
         for (int i = 0; i < tags.length; i++) {
             View view = this.getLayoutInflater().inflate(R.layout.tag_item, null);
             TextView textView = (TextView) view.findViewById(R.id.tv_tag);
+            textView.setBackgroundResource(R.drawable.tag_bg);
             textView.setText("#"+tags[i]);
             textView.setTag(i);
             mTagFlowTagLayout.addView(view);

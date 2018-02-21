@@ -25,6 +25,8 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -89,7 +91,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
 
     // Vision
@@ -124,6 +126,8 @@ public class MainActivity extends AppCompatActivity {
 
     private ArrayList<String> allergies = new ArrayList<>();
     private GoogleSignInClient mGoogleSignInClient;
+
+    private String myAllergyString="";
 
     private String barcodeResult;
     private String visionResult;
@@ -277,7 +281,14 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onClick(View v) {
                             Log.d(TAG, "add_btn_Clicked");
-                            String component = componentEditText.getText().toString();
+                            String component = componentEditText.getText().toString().trim();
+                            if(component.isEmpty())
+                                return;
+                            for(String s : allergies){
+                                if(s.equals(component))
+                                    return;
+                            }
+
                             Allergy allergy = new Allergy(component);
 
                             mReference.child("USERS")
@@ -385,17 +396,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void getSnackDataByBarcode(){
-        String resultText = "";
-
         try {
-            resultText = new Task().execute().get();
+            new Task().execute().get();
 
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
-        Log.i("##",resultText);
 
     }
 
@@ -526,8 +534,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public class Task extends AsyncTask<String, Void, String> {
-        private final String KEY = "5bf53c4f-84cb-4522-b57f-1e83fa076ef0";
-        private final String UID = "b3597253-362e-4c54-8a83-4e7a846c3681";
+        private final String KEY = "caeda314-da4c-4f1e-a271-7cd101c752d7";
+        private final String UID = "b7bf6387-8719-4469-a50f-7d40ad4451bd";
         private final String BASE_URL = "https://apis.eatsight.com/foodinfo/1.0/foods";
         private HttpURLConnection conn = null;
         private URL url = null;
@@ -609,9 +617,11 @@ public class MainActivity extends AppCompatActivity {
                     foodMaterial.setMaterialName(materialName);
                     foodMaterial.setMaterialStructure(jObject.optString("materialStructure"));
                     for(String my : allergies){
-                        if(materialName.equals(my)&&!foodMaterial.isMyAllergy()) {
+                        if((my.contains(materialName)||materialName.contains(my))&&!foodMaterial.isMyAllergy()) {
                             foodMaterial.setMyAllergy(true);
                             count++;
+                            if(!myAllergyString.contains(my))
+                                myAllergyString+=my+", ";
                         }
                     }
                     foodMaterials.add(foodMaterial);
@@ -631,9 +641,11 @@ public class MainActivity extends AppCompatActivity {
                     allergyIngredient.setMaterialName(materialName);
 
                     for(String my : allergies){
-                        if(materialName.equals(my)&&!allergyIngredient.isMyAllergy()) {
+                        if((my.contains(materialName)||materialName.contains(my))&&!allergyIngredient.isMyAllergy()) {
                             allergyIngredient.setMyAllergy(true);
                             count++;
+                            if(!myAllergyString.contains(my))
+                                myAllergyString+=my+", ";
                         }
                     }
                     allergyIngredients.add(allergyIngredient);
@@ -641,6 +653,8 @@ public class MainActivity extends AppCompatActivity {
             }
             food.setAllergyIngredients(allergyIngredients);
             food.setCount(count);
+
+            food.setMyAllergyStr(myAllergyString);
 
             return food;
         }

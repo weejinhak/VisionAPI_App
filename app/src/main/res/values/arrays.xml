@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="allergy_array">
+        <item>난류</item>
+        <item>우유</item>
+        <item>메밀</item>
+        <item>땅콩</item>
+        <item>대두</item>
+        <item>밀</item>
+        <item>고등어</item>
+        <item>게</item>
+        <item>새우</item>
+        <item>돼지고기</item>
+        <item>복숭아</item>
+        <item>토마토</item>
+        <item>아황산류</item>
+        <item>이산화황</item>
+        <item>호두</item>
+        <item>닭고기</item>
+        <item>쇠고기</item>
+        <item>오징어</item>
+        <item>조개</item>
+        <item>굴</item>
+        <item>전복</item>
+        <item>홍합</item>
+        <item>호두</item>
+        <item>잣</item>
+        <item>키위</item>
+        <item>참깨</item>
+
+    </string-array>
+    
+</resources>

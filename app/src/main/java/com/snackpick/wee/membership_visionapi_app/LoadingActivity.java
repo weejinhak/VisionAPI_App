@@ -14,7 +14,7 @@ import com.tsengvn.typekit.TypekitContextWrapper;
  * Created by wee on 2018. 2. 13..
  */
 
-public class LoadingActivity extends AppCompatActivity{
+public class LoadingActivity extends BaseActivity{
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
