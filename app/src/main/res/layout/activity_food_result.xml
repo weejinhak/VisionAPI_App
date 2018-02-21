@@ -40,14 +40,16 @@
                     android:orientation="horizontal"
                     android:layout_marginTop="16dp"
                     android:layout_marginBottom="16dp"
+                    android:weightSum="1"
                     >
                     <ImageView
                         android:id="@+id/foodThumbnail"
-                        android:layout_marginStart="5dp"
-                        android:layout_width="180dp"
+                        android:layout_marginStart="3dp"
+                        android:layout_width="match_parent"
                         android:layout_height="240dp"
                         android:layout_gravity="center"
                         android:src="@drawable/snack_frame"
+                        android:layout_weight="0.5"
                         />
 
                     <LinearLayout
@@ -55,9 +57,9 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:layout_marginTop="10dp"
-                        android:layout_marginEnd="16dp"
-                        android:layout_marginStart="5dp"
-                        android:background="@drawable/unselect_round_bg"
+                        android:layout_marginEnd="30dp"
+                        android:background="@drawable/result_bg"
+                        android:layout_weight="0.5"
                         >
 
                         <TextView
@@ -66,7 +68,7 @@
                             android:layout_height="wrap_content"
                             android:textAlignment="center"
                             android:textSize="20sp"
-                            android:textColor="@color/colorPrimaryDark"
+                            android:textColor="@color/colorPrimary"
                             android:text="프링글스"
                             android:layout_marginTop="12dp"
                             android:textStyle="bold"
@@ -118,7 +120,7 @@
                             android:layout_height="wrap_content"
                             android:text="( 우유, 대두 )"
                             android:textAlignment="center"
-                            android:layout_marginBottom="16dp"
+                            android:layout_marginBottom="10dp"
                             android:layout_marginTop="6dp"
                             android:textSize="12sp"
                             android:textColor="@color/black"
